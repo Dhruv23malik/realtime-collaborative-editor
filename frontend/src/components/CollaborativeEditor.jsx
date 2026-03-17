@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 
-export default function CollaborativeEditor({ socket }) {
+export default function CollaborativeEditor({ socket, language }) {
   const [code, setCode] = useState("// Start typing here...");
   const isRemoteUpdate = useRef(false);
 
@@ -30,16 +30,17 @@ export default function CollaborativeEditor({ socket }) {
   };
 
   return (
-    <div style={{ height: "100%", width: "100%" }}>
+    <div className="h-full w-full bg-slate-950">
       <Editor
         height="100%"
-        defaultLanguage="javascript"
+        language={language}
         value={code}
         onChange={handleChange}
         options={{
           fontSize: 14,
           minimap: { enabled: false },
           automaticLayout: true,
+          theme: "vs-dark",
         }}
       />
     </div>
