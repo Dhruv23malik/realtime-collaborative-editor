@@ -4,14 +4,25 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+
+app.get("/health", (_req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -99,6 +110,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3001, () => {
-  console.log("Server running on http://localhost:3001");
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

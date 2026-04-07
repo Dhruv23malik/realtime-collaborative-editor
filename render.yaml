@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: collabcode-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: CORS_ORIGIN
+        value: https://YOUR_NETLIFY_SITE.netlify.app

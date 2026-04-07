@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import CollaborativeEditor from "./components/CollaborativeEditor";
-import ChatPanel from "./components/chatPanel";
+import ChatPanel from "./components/ChatPanel";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 
