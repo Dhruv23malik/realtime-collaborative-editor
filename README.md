@@ -70,3 +70,32 @@ The application ensures:
 
 ## 📂 Project Structure
 
+```text
+├── backend/
+│   ├── index.js          # Express app and Socket.IO setup
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── CollaborativeEditor.jsx   # Monaco Editor integration
+│   │   │   ├── ChatPanel.jsx             # Real-time chat integration
+│   │   ├── App.jsx                       # Main Routing and Layout
+│   │   ├── index.css                     # Tailwind / Global styles
+│   │   └── main.jsx
+│   ├── vite.config.js
+│   └── package.json
+└── README.md
+```
+
+---
+
+## 🚀 Live Deployment
+
+The application is fully deployed and live!
+
+- **Frontend:** Hosted on [Vercel](https://vercel.com)
+  - Automatically builds via `npm run build` using the GitHub integration.
+- **Backend:** Hosted on [Render](https://render.com)
+  - Serves the Socket.IO endpoints.
+
+Enjoy collaborating in real-time! 🌍

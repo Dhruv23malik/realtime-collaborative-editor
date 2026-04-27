@@ -1,10 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import CollaborativeEditor from "./components/CollaborativeEditor";
 import ChatPanel from "./components/ChatPanel";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+
+const LANGUAGE_DETAILS = {
+  javascript: { accent: "from-amber-300 via-orange-400 to-pink-500", label: "JavaScript" },
+  python: { accent: "from-sky-300 via-cyan-400 to-emerald-400", label: "Python" },
+  html: { accent: "from-orange-300 via-rose-400 to-fuchsia-500", label: "HTML" },
+  css: { accent: "from-cyan-300 via-blue-400 to-indigo-500", label: "CSS" },
+  json: { accent: "from-lime-300 via-emerald-400 to-teal-500", label: "JSON" },
+  cpp: { accent: "from-violet-300 via-purple-400 to-indigo-500", label: "C++" },
+};
+
+const PROJECT_FILES = [
+  { name: "index.js", type: "Entry", status: "Live" },
+  { name: "app.js", type: "UI", status: "Synced" },
+  { name: "utils.js", type: "Logic", status: "Ready" },
+];
 
 function RoomApp() {
   const [users, setUsers] = useState(0);
@@ -17,7 +32,6 @@ function RoomApp() {
 
   useEffect(() => {
     if (!roomId) {
-      // If somehow no roomId, redirect to a new random room
       const randomRoom = crypto.randomUUID().slice(0, 8);
       navigate(`/room/${randomRoom}`, { replace: true });
       return;
@@ -43,6 +57,11 @@ function RoomApp() {
     };
   }, [roomId, navigate]);
 
+  const languageMeta = useMemo(
+    () => LANGUAGE_DETAILS[language] ?? LANGUAGE_DETAILS.javascript,
+    [language]
+  );
+
   const handleLanguageChange = (event) => {
     const newLanguage = event.target.value;
     setLanguage(newLanguage);
@@ -51,161 +70,220 @@ function RoomApp() {
     }
   };
 
+  const handleCopyLink = async () => {
+    const link = window.location.href;
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(link);
+    }
+  };
+
   return (
-    <div className="flex h-screen flex-col bg-slate-950 text-slate-100">
-      {/* NAVBAR */}
-      <header className="flex h-14 items-center justify-between border-b border-slate-800 bg-slate-900/60 px-4 backdrop-blur-md">
-        {/* Left: Logo + Name */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-semibold shadow-sm">
-            CC
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tracking-tight">
-              CollabCode
-            </span>
-            <span className="text-[11px] font-medium text-slate-400">
-              Real-time workspace
-            </span>
-          </div>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-[var(--page-bg)] text-[var(--text-primary)]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-400/18 blur-3xl" />
+        <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-400/12 blur-3xl" />
+        <div className="absolute bottom-[-12rem] left-1/3 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+        <div className="mesh-overlay absolute inset-0 opacity-40" />
+      </div>
 
-        {/* Right: Presence + Language + Chat toggle */}
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-            </span>
-            <span className="font-medium text-slate-200">
-              {users} users in this room
-            </span>
-          </div>
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-4 py-4 sm:px-6 lg:px-8">
+        <header className="glass-panel animate-rise mb-4 overflow-hidden rounded-[28px] border border-white/10 px-5 py-5 shadow-[0_30px_80px_rgba(8,15,30,0.45)] sm:px-7">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${languageMeta.accent} text-lg font-semibold text-slate-950 shadow-[0_18px_45px_rgba(56,189,248,0.25)]`}>
+                  CC
+                </div>
+                <div>
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-cyan-200/75">
+                    Collaborative Studio
+                  </p>
+                  <h1 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
+                    Build together in a workspace that feels current.
+                  </h1>
+                </div>
+              </div>
 
-          <select
-            value={language}
-            onChange={handleLanguageChange}
-            className="h-8 rounded-md border border-slate-700 bg-slate-900/80 px-2 text-xs font-medium text-slate-100 shadow-sm outline-none focus:border-sky-500"
-          >
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="html">HTML</option>
-            <option value="css">CSS</option>
-            <option value="json">JSON</option>
-            <option value="cpp">C++</option>
-          </select>
-
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
-            <span className="hidden sm:inline">Room:</span>
-            <span className="rounded-md bg-slate-900/80 px-2 py-0.5 font-mono text-[11px] text-slate-200">
-              {roomId}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                const link = window.location.href;
-                if (navigator.clipboard?.writeText) {
-                  navigator.clipboard.writeText(link);
-                }
-              }}
-              className="hidden sm:inline-flex items-center rounded-md border border-slate-700 bg-slate-900/80 px-2 py-0.5 text-[10px] font-medium text-slate-100 hover:border-slate-500 hover:bg-slate-800"
-            >
-              Copy link
-            </button>
-          </div>
-
-          <button
-            onClick={() => setShowChat((v) => !v)}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900/80 px-3 py-1 text-xs font-medium text-slate-100 shadow-sm transition-colors hover:border-slate-500 hover:bg-slate-800"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
-            <span>{showChat ? "Hide chat" : "Show chat"}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* BODY */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* FILES */}
-        <aside className="flex w-56 flex-shrink-0 flex-col border-r border-slate-800 bg-slate-900/60">
-          <button
-            type="button"
-            onClick={() => setFilesOpen((v) => !v)}
-            className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 hover:bg-slate-900/80"
-          >
-            <span className="flex items-center gap-2">
-              <span className="inline-flex h-4 w-4 items-center justify-center rounded-[3px] bg-slate-800 text-[10px] text-slate-300">
-                <>
-                  {/* simple file tree icon */}
-                  ☰
-                </>
-              </span>
-              <span>Explorer</span>
-            </span>
-            <span className="text-[10px] text-slate-500">
-              {filesOpen ? "▾" : "▸"}
-            </span>
-          </button>
-
-          <div
-            className={`flex-1 overflow-y-auto px-2 py-2 text-sm ${
-              filesOpen ? "opacity-100" : "opacity-0"
-            } transition-opacity`}
-          >
-            <div className="mb-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
-              PROJECT
-            </div>
-            <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-200 hover:bg-slate-800/80">
-              <span className="text-sky-400">◆</span>
-              <span className="font-medium">index.js</span>
-            </button>
-            <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-300 hover:bg-slate-800/80">
-              <span className="text-sky-400/80">◆</span>
-              <span>app.js</span>
-            </button>
-            <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-300 hover:bg-slate-800/80">
-              <span className="text-sky-400/80">◆</span>
-              <span>utils.js</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* EDITOR + CHAT */}
-        <main className="flex flex-1 overflow-hidden">
-          {/* EDITOR */}
-          <div className="flex flex-1 flex-col px-3 py-2">
-            <div className="mb-2 flex items-center justify-between text-[11px] text-slate-500">
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-slate-800 bg-slate-900/80 px-2 py-0.5 text-[10px] font-medium text-slate-300">
-                  editor.{language}
-                </span>
-                <span className="text-slate-600">
-                  Monaco ·{" "}
-                  {language.toUpperCase()}
-                </span>
+              <div className="grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/8 bg-white/6 px-4 py-3 backdrop-blur-md">
+                  <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Presence</p>
+                  <p className="mt-2 flex items-center gap-2 text-base font-medium text-white">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300/70" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300" />
+                    </span>
+                    {users} collaborators live
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/6 px-4 py-3 backdrop-blur-md">
+                  <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Room</p>
+                  <p className="mt-2 font-mono text-base text-white">{roomId}</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/6 px-4 py-3 backdrop-blur-md">
+                  <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Focus</p>
+                  <p className="mt-2 text-base font-medium text-white">{languageMeta.label} session</p>
+                </div>
               </div>
             </div>
-            <div className="flex h-full overflow-hidden rounded-md border border-slate-800 bg-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.9)]">
-              <div className="flex h-full w-full">
-                <CollaborativeEditor
-                  key={showChat ? "chat-open" : "chat-closed"}
-                  socket={socket}
-                  language={language}
-                />
-              </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+              <label className="flex min-w-[180px] flex-col gap-2 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3 text-xs uppercase tracking-[0.24em] text-slate-400">
+                Language
+                <select
+                  value={language}
+                  onChange={handleLanguageChange}
+                  className="rounded-xl border border-white/10 bg-white/8 px-3 py-2 text-sm font-medium tracking-normal text-white outline-none transition focus:border-cyan-300/70"
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                  <option value="html">HTML</option>
+                  <option value="css">CSS</option>
+                  <option value="json">JSON</option>
+                  <option value="cpp">C++</option>
+                </select>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/12"
+              >
+                Copy invite
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFilesOpen((value) => !value)}
+                className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/12 lg:hidden"
+              >
+                {filesOpen ? "Hide explorer" : "Show explorer"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowChat((value) => !value)}
+                className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+              >
+                {showChat ? "Close chat" : "Open chat"}
+              </button>
             </div>
           </div>
+        </header>
 
-          {/* CHAT PANEL */}
-          {showChat && (
-            <aside
-              className="flex h-full flex-shrink-0 border-l border-slate-800 bg-slate-900/70"
-              style={{ width: 280 }}
-            >
-              <ChatPanel socket={socket} />
-            </aside>
-          )}
-        </main>
+        <div className="grid flex-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside
+            className={`glass-panel animate-rise overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)] ${
+              filesOpen ? "flex" : "hidden"
+            } flex-col lg:flex`}
+          >
+            <div className="border-b border-white/8 px-5 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
+                    Explorer
+                  </p>
+                  <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
+                    Shared project map
+                  </h2>
+                </div>
+                <div className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                  Synced
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 px-5 py-5">
+              <div className="rounded-3xl border border-white/8 bg-slate-950/35 p-4">
+                <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Workspace notes</p>
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  Lightweight, collaborative, and ready for quick edits. The interface now frames the room like a product workspace instead of a plain editor shell.
+                </p>
+              </div>
+
+              <div>
+                <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Files
+                </p>
+                <div className="space-y-2">
+                  {PROJECT_FILES.map((file, index) => (
+                    <button
+                      key={file.name}
+                      type="button"
+                      className="group flex w-full items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-3 text-left transition hover:border-cyan-300/30 hover:bg-white/[0.06]"
+                    >
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br ${index === 0 ? languageMeta.accent : "from-slate-700 to-slate-800"} text-sm font-semibold text-white`}>
+                        {file.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-white">{file.name}</p>
+                        <p className="text-xs text-slate-400">
+                          {file.type} · {file.status}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <main className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <section className="glass-panel animate-rise min-h-[420px] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)]">
+              <div className="border-b border-white/8 px-5 py-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
+                      Editor
+                    </p>
+                    <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
+                      Live canvas for {languageMeta.label}
+                    </h2>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-slate-300">
+                      Monaco editor
+                    </span>
+                    <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-cyan-100">
+                      Real-time sync
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-[calc(100vh-21rem)] min-h-[360px] p-4 sm:p-5">
+                <div className="editor-shell h-full overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/80">
+                  <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full bg-rose-400" />
+                      <span className="h-3 w-3 rounded-full bg-amber-300" />
+                      <span className="h-3 w-3 rounded-full bg-emerald-400" />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <span className="rounded-full bg-white/6 px-2.5 py-1 font-mono text-slate-300">
+                        editor.{language}
+                      </span>
+                      <span>{languageMeta.label}</span>
+                    </div>
+                  </div>
+
+                  <div className="h-[calc(100%-3.25rem)]">
+                    <CollaborativeEditor
+                      key={showChat ? "chat-open" : "chat-closed"}
+                      socket={socket}
+                      language={language}
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {showChat && (
+              <aside className="glass-panel animate-rise min-h-[320px] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)]">
+                <ChatPanel socket={socket} />
+              </aside>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
@@ -217,12 +295,7 @@ export default function App() {
       <Route path="/room/:roomId" element={<RoomApp />} />
       <Route
         path="*"
-        element={
-          <Navigate
-            to={`/room/${crypto.randomUUID().slice(0, 8)}`}
-            replace
-          />
-        }
+        element={<Navigate to={`/room/${crypto.randomUUID().slice(0, 8)}`} replace />}
       />
     </Routes>
   );
