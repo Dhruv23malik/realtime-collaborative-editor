@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@react-oauth/google": "^0.13.5",
+    "jszip": "^3.10.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.13.1",

@@ -78,3 +78,89 @@ textarea {
     transform: translateY(0) scale(1);
   }
 }
+
+/* Remote Cursor & Selection Highlight styles */
+.remote-cursor-caret {
+  border-left: 2px solid var(--user-color, #22d3ee);
+  height: 1.2em;
+  position: relative;
+}
+
+.remote-cursor-tooltip {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-size: 8px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #080b16;
+  background-color: var(--user-color, #22d3ee);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+  animation: tooltip-fade 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes tooltip-fade {
+  0%, 75% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.remote-selection {
+  background-color: var(--user-selection-color, rgba(34, 211, 238, 0.15));
+}
+
+/* Custom Scrollbar for modern panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Run panel console outputs styling */
+.console-stdout {
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+}
+.console-stderr {
+  color: #f87171;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Settings modal backdrop overlay */
+.modal-overlay {
+  background: rgba(8, 11, 22, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+/* Drag and Drop hover state overlay */
+.file-drag-over {
+  background: rgba(34, 211, 238, 0.12) !important;
+  border: 1px dashed rgba(34, 211, 238, 0.4) !important;
+}
+
+/* Pulse animation for active mic recording */
+.pulse-recording {
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
