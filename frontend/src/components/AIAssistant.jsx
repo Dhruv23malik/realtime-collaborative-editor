@@ -1,10 +1,22 @@
 import { useState, useRef, useEffect } from "react";
+import { 
+  Bot, 
+  Key, 
+  Sparkles, 
+  AlertCircle, 
+  Send, 
+  CheckCircle2, 
+  Copy, 
+  BookOpen, 
+  Cpu,
+  Flame
+} from "lucide-react";
 
 export default function AIAssistant({ activeFileName, activeCode, activeLanguage }) {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "👋 Hello! I am your AI Coding Assistant. Paste your Gemini API key in Settings to connect me to real Gemini models, or ask me questions directly using my built-in local engine! I can analyze the active file and help you code.",
+      content: "Hello! I am your AI Coding Assistant. Paste your Gemini API key in the panel settings to connect me to real Gemini models, or ask me questions directly using my built-in local static engine! I can analyze the active file and help you write, debug, and optimize code.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -26,8 +38,8 @@ export default function AIAssistant({ activeFileName, activeCode, activeLanguage
       {
         role: "assistant",
         content: key
-          ? "✅ Gemini API Key saved! I am now powered by real-time Gemini intelligence."
-          : "⚠️ API Key removed. I will now fall back to the local analysis engine.",
+          ? "API Key saved successfully! I am now powered by real-time Gemini intelligence."
+          : "API Key removed. I will now fall back to the local analysis engine.",
       },
     ]);
   };
@@ -59,14 +71,14 @@ ${code ? code.split("\n").slice(0, 8).join("\n") + "\n// ... [rest of file]" : "
         issues.push("- Suggestion: Consider returning values from functions instead of just logging them to improve reusability.");
       }
       if (code && (code.match(/\{/g) || []).length !== (code.match(/\}/g) || []).length) {
-        issues.push("- Potential syntax issue: Unbalanced curly brackets `{}` detected. Check your block nestings.");
+        issues.push("- Potential syntax issue: Unbalanced curly brackets \`{}\` detected. Check your block nestings.");
       }
       
       if (issues.length === 0) {
         issues.push("- No obvious basic issues found in the file! (API key is recommended for deeper static analysis)");
       }
 
-      return `### 🔍 Debug Analysis for \`${fileName}\`:
+      return `### Debug Analysis for \`${fileName}\`:
 Here are some observations from the static scan:
 ${issues.join("\n")}
 
@@ -74,7 +86,7 @@ ${issues.join("\n")}
     }
 
     if (promptLower.includes("optimize") || promptLower.includes("performance") || promptLower.includes("refactor")) {
-      return `### ⚡ Optimization Tips for \`${fileName}\`:
+      return `### Optimization Tips for \`${fileName}\`:
 1. **Reduce Overhead:** Cache nested lookups or expensive selector accesses.
 2. **Asynchronous I/O:** Ensure blocking filesystem operations are run asynchronously.
 3. **Memory Management:** Clean up intervals, listeners, or socket connections on teardown.
@@ -164,7 +176,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         ...prev,
         {
           role: "assistant",
-          content: `❌ Error querying AI Assistant: ${err.message}. Double-check your API key or connection.`,
+          content: `Error querying AI Assistant: ${err.message}. Double-check your API key or connection.`,
         },
       ]);
     } finally {
@@ -172,7 +184,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
     }
   };
 
-  // Renders simple markdown formatting manually to keep it styling-free
+  // Renders simple markdown formatting manually
   const renderMessageContent = (content) => {
     const lines = content.split("\n");
     let inCodeBlock = false;
@@ -180,23 +192,25 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
     let codeLang = "";
 
     return lines.map((line, idx) => {
+      // Check for code blocks
       if (line.trim().startsWith("```")) {
         if (inCodeBlock) {
           inCodeBlock = false;
           const contentToRender = codeContent.join("\n");
           codeContent = [];
           return (
-            <div key={idx} className="my-2 overflow-x-auto rounded-xl border border-white/10 bg-slate-950 p-3.5 font-mono text-xs text-cyan-200">
-              <div className="flex justify-between items-center text-[10px] text-slate-500 mb-1 border-b border-white/5 pb-1">
-                <span>{codeLang || "code"}</span>
+            <div key={idx} className="my-2.5 overflow-x-auto rounded-xl border border-white/[0.08] bg-slate-950 p-3 font-mono text-[11px] text-cyan-200">
+              <div className="flex justify-between items-center text-[9px] text-slate-500 mb-1.5 border-b border-white/[0.05] pb-1.5 font-sans font-semibold">
+                <span className="uppercase">{codeLang || "code"}</span>
                 <button
                   onClick={() => navigator.clipboard.writeText(contentToRender)}
-                  className="hover:text-white transition cursor-pointer"
+                  className="flex items-center gap-1 hover:text-white transition cursor-pointer"
                 >
-                  Copy
+                  <Copy className="h-2.5 w-2.5" />
+                  <span>Copy</span>
                 </button>
               </div>
-              <pre>{contentToRender}</pre>
+              <pre className="overflow-x-auto">{contentToRender}</pre>
             </div>
           );
         } else {
@@ -214,21 +228,21 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
       // Check header format
       if (line.startsWith("### ")) {
         return (
-          <h4 key={idx} className="text-base font-semibold text-white mt-3 mb-1.5">
+          <h4 key={idx} className="text-xs font-semibold text-white mt-3 mb-1 bg-white/[0.02] py-0.5 px-1.5 rounded inline-block">
             {line.replace("### ", "")}
           </h4>
         );
       }
       if (line.startsWith("## ")) {
         return (
-          <h3 key={idx} className="text-lg font-bold text-white mt-4 mb-2">
+          <h3 key={idx} className="text-sm font-bold text-white mt-4 mb-1.5 border-b border-white/[0.05] pb-0.5">
             {line.replace("## ", "")}
           </h3>
         );
       }
       if (line.startsWith("##")) {
         return (
-          <h3 key={idx} className="text-lg font-bold text-white mt-4 mb-2">
+          <h3 key={idx} className="text-sm font-bold text-white mt-4 mb-1.5 border-b border-white/[0.05] pb-0.5">
             {line.replace(/#+\s*/, "")}
           </h3>
         );
@@ -237,21 +251,21 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
       // Render bullet items
       if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
         return (
-          <li key={idx} className="ml-4 list-disc text-sm text-slate-300 my-1">
+          <li key={idx} className="ml-4 list-disc text-xs text-slate-300 my-1 leading-relaxed">
             {line.replace(/^[-*]\s*/, "")}
           </li>
         );
       }
 
-      // Check code tags like `code`
+      // Check inline code tags like `code`
       const parts = line.split("`");
       if (parts.length > 1) {
         return (
-          <p key={idx} className="text-sm text-slate-300 my-1.5 leading-6">
+          <p key={idx} className="text-xs text-slate-300 my-1.5 leading-relaxed">
             {parts.map((part, pIdx) => {
               if (pIdx % 2 === 1) {
                 return (
-                  <code key={pIdx} className="rounded bg-white/10 px-1 py-0.5 font-mono text-xs text-cyan-300">
+                  <code key={pIdx} className="rounded bg-white/10 px-1 py-0.5 font-mono text-[10px] text-cyan-300 font-medium">
                     {part}
                   </code>
                 );
@@ -263,7 +277,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
       }
 
       return (
-        <p key={idx} className="text-sm text-slate-300 my-1.5 leading-6">
+        <p key={idx} className="text-xs text-slate-300 my-1.5 leading-relaxed">
           {line}
         </p>
       );
@@ -271,30 +285,29 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
   };
 
   return (
-    <div className="flex h-full flex-col bg-transparent text-slate-100">
-      <div className="border-b border-white/8 px-5 py-4">
+    <div className="flex h-full flex-col bg-transparent text-slate-350">
+      <div className="border-b border-[#27272a] px-4 py-2.5">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
-              Co-Pilot
-            </p>
-            <h3 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
+          <div className="flex items-center gap-2">
+            <Bot className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               AI Assistant
-            </h3>
+            </span>
           </div>
 
           <button
             onClick={() => setShowKeyInput(!showKeyInput)}
-            className="rounded-full border border-white/10 hover:border-cyan-400/30 bg-white/6 hover:bg-white/10 px-3 py-1.5 text-xs text-slate-300 transition-all cursor-pointer"
+            className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 px-2 py-0.5 text-[9px] text-slate-300 transition-all cursor-pointer font-semibold"
           >
-            {apiKey ? "🔑 Edit Key" : "🔑 Set API Key"}
+            <Key className="h-3 w-3 text-slate-450" />
+            <span>{apiKey ? "Edit Key" : "Set API Key"}</span>
           </button>
         </div>
 
         {showKeyInput && (
-          <div className="mt-3 rounded-2xl border border-cyan-400/20 bg-slate-950/80 p-3">
-            <p className="text-xs text-slate-400 mb-2">
-              Provide your Google Gemini API Key to enable real AI capability:
+          <div className="mt-2.5 rounded border border-[#27272a] bg-black/20 p-2.5">
+            <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+              Provide your Google Gemini API Key to enable high-quality code analysis:
             </p>
             <div className="flex gap-2">
               <input
@@ -302,14 +315,14 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
                 placeholder="AIzaSy..."
                 defaultValue={apiKey}
                 id="gemini-key-input"
-                className="flex-1 rounded-xl border border-white/10 bg-slate-900 px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-300"
+                className="flex-1 rounded border border-[#27272a] bg-[#18181b] px-2 py-0.5 text-[10px] text-white outline-none focus:border-zinc-750"
               />
               <button
                 onClick={() => {
                   const val = document.getElementById("gemini-key-input")?.value || "";
                   saveApiKey(val.trim());
                 }}
-                className="rounded-xl bg-cyan-400 hover:bg-cyan-300 px-3 py-1.5 text-xs font-semibold text-slate-950 transition cursor-pointer"
+                className="rounded bg-[#27272a] hover:bg-[#27272a]/70 px-2.5 py-0.5 text-[10px] font-semibold text-white transition cursor-pointer"
               >
                 Save
               </button>
@@ -319,20 +332,40 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
       </div>
 
       {/* Main chat messages */}
-      <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4 custom-scrollbar">
+      <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3 custom-scrollbar">
         {messages.map((msg, idx) => {
           const isAI = msg.role === "assistant";
+          const isKeyMsg = msg.content.includes("API Key");
+          const isErrorMsg = msg.content.includes("Error");
+
           return (
             <div key={idx} className={`flex ${isAI ? "justify-start" : "justify-end"}`}>
               <div
-                className={`max-w-[90%] rounded-3xl border px-4 py-3.5 shadow-md ${
+                className={`max-w-[90%] rounded-lg border px-3 py-2 text-left ${
                   isAI
-                    ? "border-white/8 bg-white/5 text-slate-100"
-                    : "border-cyan-400/20 bg-cyan-400/10 text-white"
+                    ? isKeyMsg
+                      ? "border-emerald-900/35 bg-emerald-950/20 text-slate-200"
+                      : isErrorMsg
+                      ? "border-rose-900/35 bg-rose-950/20 text-slate-200"
+                      : "border-[#27272a] bg-transparent text-slate-200"
+                    : "border-[#27272a] bg-[#27272a]/65 text-slate-100"
                 }`}
               >
-                <div className="mb-2 flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
-                  <span>{isAI ? "🤖 Gemini Co-Pilot" : "👤 You"}</span>
+                <div className="mb-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                  {isAI ? (
+                    <>
+                      {isKeyMsg ? (
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                      ) : isErrorMsg ? (
+                        <AlertCircle className="h-3 w-3 text-rose-500" />
+                      ) : (
+                        <Bot className="h-3 w-3 text-slate-450" />
+                      )}
+                      <span>AI Assistant</span>
+                    </>
+                  ) : (
+                    <span>You</span>
+                  )}
                 </div>
                 <div>{renderMessageContent(msg.content)}</div>
               </div>
@@ -341,11 +374,11 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         })}
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-3xl border border-white/8 bg-white/5 px-4 py-3 text-slate-400 text-xs flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-cyan-400 animate-bounce" />
-              <div className="h-2 w-2 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.2s]" />
-              <div className="h-2 w-2 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.4s]" />
-              <span>Thinking...</span>
+            <div className="rounded-lg border border-[#27272a] bg-transparent px-3 py-2 text-slate-400 text-[11px] flex items-center gap-1.5">
+              <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce" />
+              <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce [animation-delay:0.2s]" />
+              <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce [animation-delay:0.4s]" />
+              <span>Analyzing context...</span>
             </div>
           </div>
         )}
@@ -353,55 +386,56 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
       </div>
 
       {/* Prompt shortcuts */}
-      <div className="px-5 pb-2 flex flex-wrap gap-2 border-t border-white/5 pt-3 bg-white/[0.01]">
+      <div className="px-4 pb-2.5 flex flex-wrap gap-1 border-t border-[#27272a] pt-2.5 bg-transparent">
         <button
           onClick={() => handleSend("Explain the active file code")}
           disabled={loading || !activeFileName}
-          className="rounded-full border border-white/8 hover:border-cyan-400/30 bg-white/4 hover:bg-white/8 px-3 py-1 text-xs text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          📖 Explain Code
+          <BookOpen className="h-3 w-3 text-slate-450" />
+          <span>Explain</span>
         </button>
         <button
           onClick={() => handleSend("Find errors in the active file and suggest fixes")}
           disabled={loading || !activeFileName}
-          className="rounded-full border border-white/8 hover:border-rose-400/30 bg-white/4 hover:bg-white/8 px-3 py-1 text-xs text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          🔍 Debug Code
+          <Cpu className="h-3 w-3 text-slate-455" />
+          <span>Debug</span>
         </button>
         <button
           onClick={() => handleSend("How can I optimize this code for performance?")}
           disabled={loading || !activeFileName}
-          className="rounded-full border border-white/8 hover:border-amber-400/30 bg-white/4 hover:bg-white/8 px-3 py-1 text-xs text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          ⚡ Optimize Code
+          <Flame className="h-3 w-3 text-slate-455" />
+          <span>Optimize</span>
         </button>
       </div>
 
       {/* Input container */}
-      <div className="border-t border-white/8 px-4 py-4">
-        <div className="rounded-[24px] border border-white/10 bg-slate-950/35 p-2">
-          <div className="flex flex-col gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !loading && handleSend()}
-              placeholder="Ask a question about the active workspace..."
-              className="w-full bg-transparent px-3 pt-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
-              disabled={loading}
-            />
-            <div className="flex items-center justify-between px-2 pb-1">
-              <span className="text-[10px] text-slate-500">
-                {activeFileName ? `Context: ${activeFileName}` : "No file active"}
-              </span>
-              <button
-                type="button"
-                onClick={() => handleSend()}
-                disabled={!input.trim() || loading}
-                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Ask Assistant
-              </button>
-            </div>
+      <div className="border-t border-[#27272a] px-3 py-3 flex-shrink-0">
+        <div className="rounded border border-[#27272a] bg-black/25 p-1.5">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && handleSend()}
+            placeholder="Ask a question about the active workspace..."
+            className="w-full bg-transparent px-2 py-0.5 text-[10px] text-white placeholder:text-zinc-650 focus:outline-none"
+            disabled={loading}
+          />
+          <div className="mt-1.5 flex items-center justify-between border-t border-[#27272a]/40 pt-1.5 px-1.5">
+            <span className="text-[9px] text-slate-500 font-medium">
+              {activeFileName ? `Context: ${activeFileName}` : "Global Chat"}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleSend()}
+              disabled={!input.trim() || loading}
+              className="flex items-center justify-center p-1 rounded bg-[#27272a] hover:bg-[#27272a]/70 text-slate-200 transition disabled:opacity-35"
+            >
+              <Send className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </div>

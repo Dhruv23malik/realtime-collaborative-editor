@@ -9,4 +9,4 @@ services:
     autoDeploy: true
     envVars:
       - key: CORS_ORIGIN
-        value: https://YOUR_NETLIFY_SITE.netlify.app
+        value: https://realtime-collaborative-editor-flame.vercel.app

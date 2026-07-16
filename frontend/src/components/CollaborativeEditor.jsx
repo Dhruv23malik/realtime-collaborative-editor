@@ -28,7 +28,7 @@ export default function CollaborativeEditor({
   code: initialCode,
   language,
   username = "Guest",
-  editorSettings = { theme: "vs-dark", fontSize: 15, tabSize: 2 },
+  editorSettings = { theme: "vs-dark", fontSize: 13, tabSize: 2 },
 }) {
   const [code, setCode] = useState(initialCode);
   const isRemoteUpdate = useRef(false);

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -70,89 +71,91 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#080b16] text-white flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl" />
-        <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-400/10 blur-3xl" />
-        <div className="mesh-overlay absolute inset-0 opacity-40" />
-      </div>
-
-      <div className="relative text-left z-10 glass-panel p-8 sm:p-10 rounded-[28px] border border-white/10 bg-slate-950/40 backdrop-blur-xl shadow-2xl animate-rise max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500 text-lg font-semibold text-slate-950 shadow-[0_18px_45px_rgba(56,189,248,0.25)] mb-4">
-            CC
+    <div className="relative min-h-screen bg-[#09090b] text-slate-200 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 select-none">
+      <div className="relative text-left z-10 w-full max-w-sm rounded border border-[#27272a] bg-[#18181b] p-6 shadow-2xl animate-rise">
+        <div className="text-center mb-6">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-xs font-bold text-slate-200 mb-3">
+            CE
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Welcome back
+          <h2 className="text-lg font-bold tracking-tight text-white">
+            Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Sign in to start editing in synced sessions.
+          <p className="mt-1 text-[11px] text-slate-500">
+            Sign in to start collaborating in workspace sessions.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
-            {error}
+          <div className="mb-4 flex items-center gap-2 rounded border border-rose-900/35 bg-rose-950/20 px-3 py-2 text-[11px] text-rose-400">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-xs uppercase tracking-[0.24em] text-slate-400 mb-2">
+            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
               Email Address
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
-              className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-300/70 focus:bg-white/8"
-              required
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-600" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-[0.24em] text-slate-400 mb-2">
+            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-300/70 focus:bg-white/8"
-              required
-            />
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-600" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                required
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-white py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90 shadow-[0_12px_30px_rgba(255,255,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-2 flex items-center justify-center gap-2 rounded bg-white hover:opacity-90 py-2 text-[11px] font-semibold text-slate-950 transition shadow cursor-pointer"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            <LogIn className="h-3.5 w-3.5" />
+            <span>{loading ? "Signing in..." : "Sign In"}</span>
           </button>
         </form>
 
-        <div className="relative flex py-5 items-center">
-          <div className="flex-grow border-t border-white/8"></div>
-          <span className="flex-shrink mx-4 text-xs text-slate-500 uppercase tracking-widest">or</span>
-          <div className="flex-grow border-t border-white/8"></div>
+        <div className="relative flex py-4 items-center">
+          <div className="flex-grow border-t border-[#27272a]"></div>
+          <span className="flex-shrink mx-3 text-[9px] text-slate-550 uppercase tracking-widest font-bold">or</span>
+          <div className="flex-grow border-t border-[#27272a]"></div>
         </div>
 
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setError("Google Authentication Failed.")}
             theme="filled_dark"
-            shape="circle"
+            shape="square"
             width="100%"
           />
         </div>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-[11px] text-slate-550">
           Don't have an account?{" "}
-          <Link to="/register" className="font-semibold text-cyan-300 hover:text-cyan-200 transition">
+          <Link to="/register" className="font-semibold text-slate-350 hover:text-slate-200 transition underline">
             Register here
           </Link>
         </p>

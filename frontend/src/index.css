@@ -1,13 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 :root {
   color-scheme: dark;
-  --page-bg: #07111f;
-  --panel-bg: rgba(12, 22, 38, 0.7);
-  --panel-border: rgba(255, 255, 255, 0.09);
-  --text-primary: #f7fbff;
-  --text-secondary: #96a7bf;
+  --page-bg: #09090b;
+  --panel-bg: #18181b;
+  --panel-border: #27272a;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
 }
 
 html,
@@ -20,12 +20,9 @@ body,
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 28%),
-    radial-gradient(circle at top right, rgba(217, 70, 239, 0.12), transparent 26%),
-    linear-gradient(180deg, #08101d 0%, #07111f 50%, #091524 100%);
+  background: var(--page-bg);
   color: var(--text-primary);
-  font-family: "Sora", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -44,23 +41,16 @@ textarea {
 }
 
 .glass-panel {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(8, 15, 30, 0.66));
-  backdrop-filter: blur(24px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
 }
 
 .mesh-overlay {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-position: center center;
-  background-size: 72px 72px;
-  mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
+  display: none;
 }
 
 .editor-shell {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 20px 40px rgba(3, 7, 18, 0.4);
+  border: 1px solid var(--panel-border);
 }
 
 .animate-rise {
@@ -91,7 +81,7 @@ textarea {
   top: -18px;
   left: 0;
   font-size: 8px;
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   padding: 1px 4px;
   border-radius: 3px;
@@ -144,8 +134,8 @@ textarea {
 
 /* Settings modal backdrop overlay */
 .modal-overlay {
-  background: rgba(8, 11, 22, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(4px);
 }
 
 /* Drag and Drop hover state overlay */
@@ -162,5 +152,32 @@ textarea {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Custom UI refinements */
+.workspace-border {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.active-tab {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  border-bottom: 2px solid #06b6d4;
+}
+.inactive-tab {
+  color: #94a3b8;
+}
+.inactive-tab:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.02);
+}
+.pane-header {
+  background-color: #0c0f1d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pane-content {
+  background-color: #080b16;
+}
+.file-tree-guide {
+  border-left: 1px dashed rgba(255, 255, 255, 0.08);
 }
 

@@ -11,24 +11,48 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import JSZip from "jszip";
 
+// Lucide Icons
+import {
+  Play,
+  Settings,
+  Copy,
+  Check,
+  LogOut,
+  FolderTree,
+  MessageSquare,
+  Bot,
+  Plus,
+  FolderPlus,
+  FilePlus,
+  Edit2,
+  Trash2,
+  X,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Upload,
+  Download,
+  Eye,
+  FileText,
+  Folder,
+  FolderOpen,
+  Globe,
+  User,
+  UserPlus,
+  LogIn
+} from "lucide-react";
+
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "mock-google-client-id.apps.googleusercontent.com";
 
 const LANGUAGE_DETAILS = {
-  javascript: { accent: "from-amber-300 via-orange-400 to-pink-500", label: "JavaScript" },
-  python: { accent: "from-sky-300 via-cyan-400 to-emerald-400", label: "Python" },
-  html: { accent: "from-orange-300 via-rose-400 to-fuchsia-500", label: "HTML" },
-  css: { accent: "from-cyan-300 via-blue-400 to-indigo-500", label: "CSS" },
-  json: { accent: "from-lime-300 via-emerald-400 to-teal-500", label: "JSON" },
-  cpp: { accent: "from-violet-300 via-purple-400 to-indigo-500", label: "C++" },
+  javascript: { accent: "from-amber-400 via-orange-500 to-rose-500", label: "JavaScript" },
+  python: { accent: "from-sky-400 via-blue-500 to-emerald-500", label: "Python" },
+  html: { accent: "from-orange-400 via-red-500 to-pink-500", label: "HTML" },
+  css: { accent: "from-cyan-400 via-blue-500 to-indigo-500", label: "CSS" },
+  json: { accent: "from-lime-400 via-emerald-500 to-teal-500", label: "JSON" },
+  cpp: { accent: "from-violet-400 via-purple-500 to-indigo-500", label: "C++" },
 };
-
-const PROJECT_FILES = [
-  { name: "index.js", type: "Entry", status: "Live" },
-  { name: "app.js", type: "UI", status: "Synced" },
-  { name: "utils.js", type: "Logic", status: "Ready" },
-];
-
 
 function RoomApp({ currentUser, onLogout }) {
   const [users, setUsers] = useState([]);
@@ -58,7 +82,7 @@ function RoomApp({ currentUser, onLogout }) {
   // Editor Settings
   const [editorSettings, setEditorSettings] = useState(() => {
     const saved = localStorage.getItem("editor_settings");
-    return saved ? JSON.parse(saved) : { theme: "vs-dark", fontSize: 15, tabSize: 2 };
+    return saved ? JSON.parse(saved) : { theme: "vs-dark", fontSize: 13, tabSize: 2 };
   });
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -363,12 +387,14 @@ function RoomApp({ currentUser, onLogout }) {
   const renderCreationInput = (parentId, depth) => {
     return (
       <div
-        style={{ paddingLeft: `${depth * 16 + 12}px` }}
-        className="flex items-center gap-2 py-1.5 px-3"
+        style={{ paddingLeft: `${depth * 14 + 14}px` }}
+        className="flex items-center gap-2 py-1 px-2.5"
       >
-        <span className="text-slate-400 text-xs">
-          {creatingType === "folder" ? "📁" : "📄"}
-        </span>
+        {creatingType === "folder" ? (
+          <Folder className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
+        ) : (
+          <FileText className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
+        )}
         <input
           type="text"
           value={newItemName}
@@ -380,7 +406,7 @@ function RoomApp({ currentUser, onLogout }) {
           }}
           onBlur={() => commitCreation(parentId)}
           autoFocus
-          className="rounded border border-cyan-400/40 bg-slate-950 px-2 py-0.5 text-xs text-white outline-none w-32 focus:border-cyan-300 focus:ring-1 focus:ring-cyan-300"
+          className="rounded border border-cyan-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32 focus:border-cyan-400"
         />
       </div>
     );
@@ -407,11 +433,11 @@ function RoomApp({ currentUser, onLogout }) {
       return (
         <div key={item._id} className="select-none">
           <div
-            style={{ paddingLeft: `${depth * 12 + 10}px` }}
-            className={`group flex items-center justify-between py-2 px-2.5 rounded-xl transition cursor-pointer my-0.5 ${
+            style={{ paddingLeft: `${depth * 14 + 8}px` }}
+            className={`group flex items-center justify-between py-1 px-2 rounded-lg transition cursor-pointer my-0.5 text-xs ${
               activeFileId === item._id && !item.isFolder
-                ? "bg-cyan-400/10 text-cyan-200 border border-cyan-400/20"
-                : "text-slate-300 hover:bg-white/[0.04]"
+                ? "bg-cyan-500/10 text-cyan-200 border border-cyan-500/15"
+                : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
             }`}
             draggable
             onDragStart={(e) => {
@@ -450,13 +476,13 @@ function RoomApp({ currentUser, onLogout }) {
           >
             <div className="flex items-center gap-2 min-w-0">
               {item.isFolder ? (
-                <span className="text-amber-400 font-semibold text-base leading-none">
-                  {isExpanded ? "📂" : "📁"}
-                </span>
+                isExpanded ? (
+                  <FolderOpen className="h-4.5 w-4.5 text-amber-500/90 flex-shrink-0" />
+                ) : (
+                  <Folder className="h-4.5 w-4.5 text-amber-500/90 flex-shrink-0" />
+                )
               ) : (
-                <span className="text-cyan-300 font-medium text-base leading-none">
-                  📄
-                </span>
+                <FileText className="h-4 w-4 text-cyan-400/90 flex-shrink-0" />
               )}
 
               {isRenaming ? (
@@ -470,58 +496,58 @@ function RoomApp({ currentUser, onLogout }) {
                   }}
                   onBlur={() => commitRename(item._id)}
                   autoFocus
-                  className="rounded border border-cyan-400/40 bg-slate-950 px-2 py-0.5 text-xs text-white outline-none w-32"
+                  className="rounded border border-cyan-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32"
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <span className="truncate text-sm font-medium">{item.name}</span>
+                <span className="truncate font-medium">{item.name}</span>
               )}
             </div>
 
-            {/* Explorer action selectors */}
+            {/* Explorer action buttons */}
             <div className="hidden group-hover:flex items-center gap-1.5 ml-2">
               {item.isFolder && (
                 <>
                   <button
                     type="button"
                     title="New File"
-                    className="text-slate-400 hover:text-cyan-300 transition text-[0.6rem] cursor-pointer"
+                    className="p-0.5 rounded text-slate-500 hover:text-cyan-400 hover:bg-white/5 transition cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       startCreation(item._id, "file");
                     }}
                   >
-                    📄+
+                    <FilePlus className="h-3 w-3" />
                   </button>
                   <button
                     type="button"
                     title="New Folder"
-                    className="text-slate-400 hover:text-amber-400 transition text-[0.6rem] cursor-pointer"
+                    className="p-0.5 rounded text-slate-500 hover:text-amber-500 hover:bg-white/5 transition cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       startCreation(item._id, "folder");
                     }}
                   >
-                    📁+
+                    <FolderPlus className="h-3 w-3" />
                   </button>
                 </>
               )}
               <button
                 type="button"
                 title="Rename"
-                className="text-slate-400 hover:text-cyan-300 transition text-[0.65rem] cursor-pointer"
+                className="p-0.5 rounded text-slate-500 hover:text-cyan-400 hover:bg-white/5 transition cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setRenamingFileId(item._id);
                   setRenamingName(item.name);
                 }}
               >
-                ✏️
+                <Edit2 className="h-3 w-3" />
               </button>
               <button
                 type="button"
                 title="Delete"
-                className="text-slate-400 hover:text-rose-400 transition text-[0.65rem] cursor-pointer"
+                className="p-0.5 rounded text-slate-500 hover:text-rose-450 hover:bg-white/5 transition cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm(`Delete ${item.name}?`)) {
@@ -529,7 +555,7 @@ function RoomApp({ currentUser, onLogout }) {
                   }
                 }}
               >
-                🗑️
+                <Trash2 className="h-3 w-3" />
               </button>
             </div>
           </div>
@@ -537,7 +563,9 @@ function RoomApp({ currentUser, onLogout }) {
           {creatingInId === item._id && creatingType && renderCreationInput(item._id, depth + 1)}
 
           {item.isFolder && isExpanded && (
-            <div className="mt-0.5">{renderTree(item._id, depth + 1)}</div>
+            <div className="mt-0.5 file-tree-guide ml-[14px]">
+              {renderTree(item._id, depth + 1)}
+            </div>
           )}
         </div>
       );
@@ -546,464 +574,486 @@ function RoomApp({ currentUser, onLogout }) {
 
   if (loading) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-[#080b16] text-white flex items-center justify-center">
+      <div className="relative min-h-screen overflow-hidden bg-[#05070f] text-white flex items-center justify-center">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl" />
-          <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-400/10 blur-3xl" />
-          <div className="mesh-overlay absolute inset-0 opacity-40" />
+          <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-500/5 blur-3xl" />
+          <div className="mesh-overlay absolute inset-0 opacity-20" />
         </div>
         
-        <div className="relative text-center z-10 glass-panel p-8 rounded-3xl border border-white/10 bg-slate-950/40 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
-          <div className="relative flex items-center justify-center mx-auto h-16 w-16 mb-6">
-            <div className="absolute inset-0 rounded-full border-4 border-cyan-400/20 animate-pulse" />
-            <div className="h-12 w-12 rounded-full border-4 border-t-cyan-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+        <div className="relative text-center z-10 glass-panel p-8 rounded-2xl border border-white/[0.08] bg-[#0c0f1d]/50 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
+          <div className="relative flex items-center justify-center mx-auto h-12 w-12 mb-5">
+            <div className="absolute inset-0 rounded-full border-2 border-cyan-500/10 animate-pulse" />
+            <div className="h-8 w-8 rounded-full border-2 border-t-cyan-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
           </div>
-          <h3 className="text-xl font-semibold text-white tracking-wide">Workspace Canvas</h3>
-          <p className="mt-2 text-sm text-slate-400">Loading room details & chat transcripts...</p>
+          <h3 className="text-base font-semibold text-white tracking-wide">Connecting Workspace</h3>
+          <p className="mt-2 text-xs text-slate-450">Loading synchronized directories & session state...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--page-bg)] text-[var(--text-primary)]">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-400/18 blur-3xl" />
-        <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-400/12 blur-3xl" />
-        <div className="absolute bottom-[-12rem] left-1/3 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
-        <div className="mesh-overlay absolute inset-0 opacity-40" />
-      </div>
+    <div className="relative min-h-screen h-screen flex flex-col overflow-hidden bg-[#09090b] text-slate-100">
+      {/* Slim Top Navigation Bar */}
+      <header className="relative z-40 flex h-12 items-center justify-between border-b border-[#27272a] bg-[#18181b] px-4 select-none flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          {/* Logo badge */}
+          <div className="flex h-7 w-7 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-[10px] font-bold text-slate-200">
+            CE
+          </div>
+          <div className="hidden sm:block">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-slate-200 tracking-wide">Collaborative Editor</span>
+            </div>
+          </div>
+        </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-4 py-4 sm:px-6 lg:px-8">
-        <header className="glass-panel animate-rise mb-4 overflow-hidden rounded-[28px] border border-white/10 px-5 py-5 shadow-[0_30px_80px_rgba(8,15,30,0.45)] sm:px-7">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-4">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${languageMeta.accent} text-lg font-semibold text-slate-950 shadow-[0_18px_45px_rgba(56,189,248,0.25)]`}>
-                  CC
-                </div>
-                <div>
-                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-cyan-200/75">
-                    Collaborative Studio
-                  </p>
-                  <h1 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
-                    Build together in a workspace that feels current.
-                  </h1>
-                </div>
-              </div>
+        {/* Middle: Room Code & Link Shortener */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-md border border-[#27272a] bg-black/30 px-2 py-0.5 text-[10px]">
+            <span className="text-slate-500 uppercase tracking-widest text-[8px] font-bold">Room:</span>
+            <span className="font-mono text-slate-300 font-medium">{roomId}</span>
+          </div>
 
-              <div className="grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
-                <Presence users={users} />
-                
-                <div className="rounded-2xl border border-white/8 bg-white/6 px-4 py-3 backdrop-blur-md">
-                  <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Room</p>
-                  <p className="mt-2 font-mono text-base text-white">{roomId}</p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/6 px-4 py-3 backdrop-blur-md">
-                  <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Focus</p>
-                  <p className="mt-2 text-base font-medium text-white">{activeFile ? activeFile.name : "No file"}</p>
-                </div>
-              </div>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className={`flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-medium transition-all duration-200 cursor-pointer ${
+              copied
+                ? "border-emerald-800/40 bg-emerald-950/30 text-emerald-400"
+                : "border-[#27272a] bg-[#27272a]/30 text-slate-300 hover:bg-[#27272a]/60"
+            }`}
+          >
+            {copied ? (
+              <>
+                <Check className="h-3 w-3" />
+                <span>Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3 w-3" />
+                <span>Copy Link</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Right side actions */}
+        <div className="flex items-center gap-4">
+          {/* Active Collaborators Avatars */}
+          <div className="hidden md:block">
+            <Presence users={users} />
+          </div>
+
+          <div className="h-4 w-[1px] bg-[#27272a] hidden md:block" />
+
+          {/* Toggle sidebar state controls */}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setFilesOpen((value) => !value)}
+              title={filesOpen ? "Collapse Explorer" : "Expand Explorer"}
+              className={`p-1 rounded border transition cursor-pointer ${
+                filesOpen 
+                  ? "border-[#27272a] bg-[#27272a] text-slate-200" 
+                  : "border-[#27272a] bg-transparent text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <FolderTree className="h-3.5 w-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowChat((value) => !value)}
+              title={showChat ? "Collapse Sidebar" : "Expand Sidebar"}
+              className={`p-1 rounded border transition cursor-pointer ${
+                showChat 
+                  ? "border-[#27272a] bg-[#27272a] text-slate-200" 
+                  : "border-[#27272a] bg-transparent text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setShowSettingsModal(true)}
+              title="Editor Configurations"
+              className="p-1 rounded border border-[#27272a] bg-transparent text-slate-400 hover:text-slate-200 hover:bg-[#27272a]/55 transition cursor-pointer"
+            >
+              <Settings className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="h-4 w-[1px] bg-[#27272a]" />
+
+          {/* User Auth Section */}
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <Link to="/profile" className="group flex items-center gap-2 cursor-pointer">
+                {currentUser.avatar ? (
+                  <img src={currentUser.avatar} alt={currentUser.username} className="h-7 w-7 rounded-full border border-cyan-500/20 object-cover" />
+                ) : (
+                  <div className="h-7 w-7 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-xs font-semibold text-cyan-400 flex items-center justify-center uppercase">
+                    {currentUser.username.slice(0, 2)}
+                  </div>
+                )}
+                <span className="hidden lg:block text-xs font-semibold text-slate-300 group-hover:text-white transition">
+                  {currentUser.username}
+                </span>
+              </Link>
+              <button 
+                onClick={onLogout} 
+                title="Log Out"
+                className="p-1 text-slate-500 hover:text-rose-450 transition cursor-pointer bg-transparent"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs">
+              <Link to="/login" className="px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+                <LogIn className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+              <Link to="/register" className="rounded-lg bg-white px-3 py-1.5 font-semibold text-[#05070f] transition hover:opacity-90 shadow-md flex items-center gap-1">
+                <UserPlus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign Up</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Workspace Frame */}
+      <div className="relative z-10 flex-1 flex overflow-hidden min-h-0">
+        
+        {/* Left Sidebar: Workspace Explorer */}
+        <aside
+          className={`w-56 bg-[#18181b] border-r border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 select-none ${
+            filesOpen ? "flex" : "hidden"
+          }`}
+        >
+          {/* Header */}
+          <div className="border-b border-[#27272a] px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Explorer</p>
+              <h2 className="text-[11px] font-semibold text-white mt-0.5">Workspace Files</h2>
+            </div>
+            
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                title="New File at Root"
+                className="rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 p-1 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                onClick={() => startCreation(null, "file")}
+              >
+                <FilePlus className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                title="New Folder at Root"
+                className="rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 p-1 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                onClick={() => startCreation(null, "folder")}
+              >
+                <FolderPlus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Explorer Scroll Area */}
+          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 custom-scrollbar">
+            
+            {/* Quick Actions (Import / Export) */}
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => document.getElementById("file-upload-input").click()}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-[9px] font-bold text-slate-300 transition cursor-pointer"
+              >
+                <Upload className="h-3 w-3 text-slate-400" />
+                <span>Import</span>
+              </button>
+              <input
+                type="file"
+                id="file-upload-input"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              
+              <button
+                onClick={exportWorkspaceAsZip}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-[9px] font-bold text-slate-300 transition cursor-pointer"
+              >
+                <Download className="h-3 w-3 text-slate-400" />
+                <span>Export ZIP</span>
+              </button>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            {/* Quick search input */}
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-3 w-3 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search filenames..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded border border-[#27272a] bg-black/20 px-2 py-1 pl-7 text-[10px] text-white placeholder:text-zinc-650 outline-none focus:border-zinc-700"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="absolute right-2 top-2.5 text-slate-500 hover:text-slate-300">
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+
+            {/* File List / Tree hierarchy */}
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2 block">Files</span>
+              
+              <div
+                className="space-y-0.5 min-h-[180px]"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const draggedId = e.dataTransfer.getData("text/plain");
+                  if (draggedId) {
+                    socket.emit("file-move", { fileId: draggedId, newParentId: null });
+                  }
+                }}
+              >
+                {searchQuery.trim() ? (
+                  <div className="space-y-1">
+                    {searchResults.length === 0 ? (
+                      <p className="text-xs text-slate-600 italic py-2 pl-1">No matching workspace files</p>
+                    ) : (
+                      searchResults.map((f) => (
+                        <div
+                          key={f._id}
+                          onClick={() => {
+                            setActiveFileId(f._id);
+                            setSearchQuery("");
+                          }}
+                          className={`flex items-center gap-2 py-1 px-1.5 rounded cursor-pointer transition hover:bg-[#27272a]/30 text-[11px] ${
+                            activeFileId === f._id ? "bg-[#27272a] text-white" : "text-slate-400"
+                          }`}
+                        >
+                          <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{f.name}</p>
+                            <p className="text-[9px] text-slate-550 truncate">{f.path}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {creatingInId === null && creatingType && renderCreationInput(null, 0)}
+                    {renderTree(null, 0)}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Central Space: Code Editor and Console panel */}
+        <main className="flex-1 min-w-0 flex flex-col h-full bg-[#09090b] relative">
+          
+          {/* Breadcrumb / Editor Tab status bar */}
+          <div className="h-9 border-b border-[#27272a] bg-[#18181b]/80 flex items-center justify-between px-4 select-none flex-shrink-0">
+            <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-400">
+              <span className="text-[9px] tracking-wide text-slate-500">active file:</span>
+              <span className="text-slate-300 font-mono">
+                {activeFile ? activeFile.path : "No active file selected"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {activeFile && (activeLanguage === "javascript" || activeLanguage === "python" || activeLanguage === "html" || activeLanguage === "css") && (
+                <button
+                  onClick={runCode}
+                  disabled={execRunning}
+                  className="rounded bg-emerald-750 hover:bg-emerald-700 px-2 py-0.5 text-[9px] font-bold text-white flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40"
+                >
+                  <Play className="h-2.5 w-2.5 fill-current" />
+                  <span>Run</span>
+                </button>
+              )}
+              
               <button
-                type="button"
-                onClick={handleCopyLink}
-                className={`rounded-2xl border transition-all duration-300 px-4 py-3 text-sm font-medium ${
-                  copied
-                    ? "border-emerald-300/30 bg-emerald-400/10 text-emerald-200"
-                    : "border-white/12 bg-white/8 text-white hover:bg-white/12"
+                onClick={() => setConsoleOpen(!consoleOpen)}
+                className={`rounded border px-2 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                  consoleOpen 
+                    ? "border-[#27272a] bg-[#27272a] text-slate-200"
+                    : "border-[#27272a] bg-transparent text-slate-400 hover:text-slate-200"
                 }`}
               >
-                {copied ? "Copied! ✨" : "Copy Room Link"}
+                Terminal
               </button>
+            </div>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => setFilesOpen((value) => !value)}
-                className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/12 lg:hidden"
-              >
-                {filesOpen ? "Hide explorer" : "Show explorer"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowSettingsModal(true)}
-                className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/12 mr-1 cursor-pointer"
-              >
-                ⚙️ Settings
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowChat((value) => !value)}
-                className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90 mr-1"
-              >
-                {showChat ? "Close Sidebar" : "Open Sidebar"}
-              </button>
-
-              {/* Dynamic Authentication Toggle Section in Top-Right Nav */}
-              {currentUser ? (
-                <div className="flex items-center gap-3 bg-white/8 border border-white/10 px-4 py-2.5 rounded-2xl backdrop-blur-md">
-                  {currentUser.avatar ? (
-                    <img src={currentUser.avatar} alt={currentUser.username} className="h-8 w-8 rounded-full border border-cyan-400/30 object-cover" />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-cyan-500 text-xs font-semibold text-slate-950 flex items-center justify-center">
-                      {currentUser.username.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="text-left hidden md:block">
-                    <p className="text-[0.6rem] text-slate-400 font-semibold uppercase tracking-wider leading-none">Logged In</p>
-                    <p className="text-sm font-semibold text-white mt-1 leading-none">{currentUser.username}</p>
-                  </div>
-                  <div className="flex items-center gap-2 border-l border-white/10 pl-3">
-                    <Link to="/profile" className="text-xs font-semibold text-cyan-300 hover:text-cyan-200 transition">
-                      Profile
-                    </Link>
-                    <button onClick={onLogout} className="text-xs font-semibold text-rose-400 hover:text-rose-300 transition cursor-pointer bg-transparent border-none">
-                      Logout
-                    </button>
-                  </div>
-                </div>
+          {/* Monaco Editor Canvas */}
+          <div className="flex-1 min-h-0 flex flex-col min-w-0 relative">
+            <div className="flex-1 min-h-[150px] min-w-0">
+              {activeFileId ? (
+                <CollaborativeEditor
+                  key={activeFileId}
+                  socket={socket}
+                  roomId={roomId}
+                  fileId={activeFileId}
+                  code={activeCode}
+                  language={activeLanguage}
+                  username={displayName}
+                  editorSettings={editorSettings}
+                />
               ) : (
-                <div className="flex items-center gap-2 bg-slate-950/35 border border-white/10 px-2.5 py-2 rounded-2xl">
-                  <Link to="/login" className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition">
-                    Login
-                  </Link>
-                  <Link to="/register" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90 shadow-md">
-                    Register
-                  </Link>
+                <div className="h-full flex flex-col items-center justify-center text-slate-500 text-[11px] gap-3 max-w-sm mx-auto text-center px-4">
+                  <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl">
+                    <FolderTree className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-300">Workspace is ready</h3>
+                    <p className="mt-1 text-slate-500 leading-relaxed">Select a file from the explorer sidebar or create a new one to begin real-time collaborative coding.</p>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        </header>
 
-        <div className="grid flex-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside
-            className={`glass-panel animate-rise overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)] ${
-              filesOpen ? "flex" : "hidden"
-            } flex-col lg:flex`}
-          >
-            <div className="border-b border-white/8 px-5 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
-                    Explorer
-                  </p>
-                  <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
-                    Workspace Files
-                  </h2>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    title="New File at Root"
-                    className="rounded border border-white/10 hover:border-cyan-300/30 bg-white/[0.02] hover:bg-white/[0.06] p-1.5 text-slate-300 hover:text-cyan-200 transition text-[0.65rem] cursor-pointer font-bold"
-                    onClick={() => startCreation(null, "file")}
-                  >
-                    📄+
-                  </button>
-                  <button
-                    type="button"
-                    title="New Folder at Root"
-                    className="rounded border border-white/10 hover:border-amber-300/30 bg-white/[0.02] hover:bg-white/[0.06] p-1.5 text-slate-300 hover:text-amber-200 transition text-[0.65rem] cursor-pointer font-bold"
-                    onClick={() => startCreation(null, "folder")}
-                  >
-                    📁+
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 px-5 py-5 flex-1 flex flex-col min-h-0">
-              <div className="rounded-3xl border border-white/8 bg-slate-950/35 p-4 flex-shrink-0">
-                <p className="text-[0.7rem] uppercase tracking-[0.24em] text-slate-400">Workspace Explorer</p>
-                <p className="mt-2 text-[11px] leading-4 text-slate-400">
-                  Manage directories dynamically. Drag-and-drop to relocate. Switch files to code.
-                </p>
-              </div>
-
-              <div className="flex gap-2 flex-shrink-0">
-                <button
-                  onClick={() => document.getElementById("file-upload-input").click()}
-                  className="flex-1 rounded-xl border border-white/10 hover:border-cyan-400/30 bg-white/4 hover:bg-white/8 py-2 text-xs font-semibold text-slate-300 transition cursor-pointer text-center"
-                >
-                  📥 Import
-                </button>
-                <input
-                  type="file"
-                  id="file-upload-input"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
+            {/* Bottom Drawer Console Pane */}
+            {consoleOpen && (
+              <div className="h-60 border-t border-[#27272a] bg-[#18181b] flex flex-col min-w-0 flex-shrink-0 text-left z-30">
                 
-                <button
-                  onClick={exportWorkspaceAsZip}
-                  className="flex-1 rounded-xl border border-white/10 hover:border-amber-400/30 bg-white/4 hover:bg-white/8 py-2 text-xs font-semibold text-slate-300 transition cursor-pointer text-center"
-                >
-                  📦 Export ZIP
-                </button>
-              </div>
-
-              <div className="flex-shrink-0">
-                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Search Workspace:</label>
-                <input
-                  type="text"
-                  placeholder="Search file name or contents..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none focus:border-cyan-300"
-                />
-              </div>
-
-              <div className="flex-1 flex flex-col min-h-0">
-                <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  File Tree
-                </p>
-                <div
-                  className="flex-1 overflow-y-auto space-y-1 pr-1 min-h-[150px]"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const draggedId = e.dataTransfer.getData("text/plain");
-                    if (draggedId) {
-                      socket.emit("file-move", { fileId: draggedId, newParentId: null });
-                    }
-                  }}
-                >
-                  {searchQuery.trim() ? (
-                    <div className="space-y-1">
-                      {searchResults.length === 0 ? (
-                        <p className="text-xs text-slate-500 italic p-2">No matching files found.</p>
-                      ) : (
-                        searchResults.map((f) => (
-                          <div
-                            key={f._id}
-                            onClick={() => {
-                              setActiveFileId(f._id);
-                              setSearchQuery("");
-                            }}
-                            className={`flex items-center gap-2 py-2 px-2.5 rounded-xl cursor-pointer hover:bg-white/[0.04] text-xs ${
-                              activeFileId === f._id ? "bg-cyan-400/10 text-cyan-200" : "text-slate-300"
-                            }`}
-                          >
-                            <span>📄</span>
-                            <div className="min-w-0">
-                              <p className="font-medium truncate">{f.name}</p>
-                              <p className="text-[9px] text-slate-500 truncate">{f.path}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      {creatingInId === null && creatingType && renderCreationInput(null, 0)}
-                      {renderTree(null, 0)}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          <main className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <section className="glass-panel animate-rise min-h-[420px] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)] flex flex-col">
-              <div className="border-b border-white/8 px-5 py-4 flex-shrink-0">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
-                      Editor
-                    </p>
-                    <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
-                      {activeFile ? activeFile.path : "Select a file"}
-                    </h2>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-slate-300">
-                      Monaco editor
-                    </span>
-                    <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-cyan-100">
-                      Real-time sync
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 p-4 sm:p-5 min-h-[360px] min-w-0">
-                <div className="editor-shell h-full overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/80 flex flex-col">
-                  <div className="flex items-center justify-between border-b border-white/8 px-4 py-3 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3 w-3 rounded-full bg-rose-400" />
-                      <span className="h-3 w-3 rounded-full bg-amber-300" />
-                      <span className="h-3 w-3 rounded-full bg-emerald-400" />
-                      
-                      {activeFile && (activeLanguage === "javascript" || activeLanguage === "python" || activeLanguage === "html" || activeLanguage === "css") && (
-                        <button
-                          onClick={runCode}
-                          disabled={execRunning}
-                          className="ml-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-3 py-1 text-[11px] font-bold text-slate-950 flex items-center gap-1 transition-all cursor-pointer disabled:opacity-50"
-                        >
-                          ▶ Run Code
-                        </button>
-                      )}
-                      
+                {/* Pane Tabs Header */}
+                <div className="flex items-center justify-between border-b border-[#27272a] px-4 py-1 flex-shrink-0 bg-[#18181b] select-none">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setConsoleTab("output")}
+                      className={`text-[10px] font-semibold py-0.5 px-1.5 rounded transition-all ${
+                        consoleTab === "output" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      Console
+                    </button>
+                    {(activeLanguage === "html" || activeLanguage === "css") && (
                       <button
-                        onClick={() => setConsoleOpen(!consoleOpen)}
-                        className="ml-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-2 py-1 text-[11px] font-medium text-slate-300 transition cursor-pointer"
+                        onClick={() => setConsoleTab("preview")}
+                        className={`text-[10px] font-semibold py-0.5 px-1.5 rounded transition-all ${
+                          consoleTab === "preview" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
+                        }`}
                       >
-                        Terminal
+                        Web Live Preview
                       </button>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
-                      <span className="rounded-full bg-white/6 px-2.5 py-1 font-mono text-slate-300">
-                        {activeFile ? activeFile.name : "editor"}
-                      </span>
-                      <span>{languageMeta.label}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 min-h-0 flex flex-col min-w-0">
-                    <div className="flex-1 min-h-[200px] min-w-0">
-                      {activeFileId ? (
-                        <CollaborativeEditor
-                          key={activeFileId}
-                          socket={socket}
-                          roomId={roomId}
-                          fileId={activeFileId}
-                          code={activeCode}
-                          language={activeLanguage}
-                          username={displayName}
-                          editorSettings={editorSettings}
-                        />
-                      ) : (
-                        <div className="h-full flex items-center justify-center text-slate-500 text-sm">
-                          Select or create a file to start editing.
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Console Drawer */}
-                    {consoleOpen && (
-                      <div className="h-56 border-t border-white/8 bg-slate-950/95 flex flex-col min-w-0 flex-shrink-0 text-left">
-                        <div className="flex items-center justify-between border-b border-white/8 px-4 py-2 flex-shrink-0">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setConsoleTab("output")}
-                              className={`text-xs font-semibold py-1 px-2.5 rounded-lg transition ${
-                                consoleTab === "output" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
-                              }`}
-                            >
-                              Console Output
-                            </button>
-                            {(activeLanguage === "html" || activeLanguage === "css") && (
-                              <button
-                                onClick={() => setConsoleTab("preview")}
-                                className={`text-xs font-semibold py-1 px-2.5 rounded-lg transition ${
-                                  consoleTab === "preview" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
-                                }`}
-                              >
-                                Web Preview
-                              </button>
-                            )}
-                          </div>
-                          
-                          <button
-                            onClick={() => setConsoleOpen(false)}
-                            className="text-xs text-slate-400 hover:text-white cursor-pointer animate-none"
-                          >
-                            ✕ Minimize
-                          </button>
-                        </div>
-
-                        <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-slate-950">
-                          {consoleTab === "output" ? (
-                            <pre className="font-mono text-xs leading-5 whitespace-pre-wrap select-text text-left">
-                              {execRunning ? (
-                                <span className="text-cyan-400 animate-pulse font-bold">Running execution...</span>
-                              ) : execError ? (
-                                <span className="console-stderr">{execError}</span>
-                              ) : (
-                                <span className="console-stdout">{execOutput}</span>
-                              )}
-                            </pre>
-                          ) : (
-                            <iframe
-                              title="HTML Live Preview"
-                              sandbox="allow-scripts"
-                              srcDoc={getCombinedHtmlPreview()}
-                              className="w-full h-full border-none bg-white rounded-xl"
-                            />
-                          )}
-                        </div>
-                      </div>
                     )}
                   </div>
+                  
+                  <button
+                    onClick={() => setConsoleOpen(false)}
+                    className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              </div>
-            </section>
 
-            {showChat && (
-              <aside className="glass-panel animate-rise min-h-[320px] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_25px_70px_rgba(8,15,30,0.42)] flex flex-col">
-                <div className="flex border-b border-white/8 flex-shrink-0">
-                  <button
-                    onClick={() => setRightPanelTab("chat")}
-                    className={`flex-1 py-3 text-xs font-semibold tracking-wider uppercase border-r border-white/8 transition cursor-pointer ${
-                      rightPanelTab === "chat" ? "bg-white/5 text-white" : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    💬 Team Chat
-                  </button>
-                  <button
-                    onClick={() => setRightPanelTab("ai")}
-                    className={`flex-1 py-3 text-xs font-semibold tracking-wider uppercase transition cursor-pointer ${
-                      rightPanelTab === "ai" ? "bg-white/5 text-cyan-300" : "text-slate-400 hover:text-cyan-200"
-                    }`}
-                  >
-                    🤖 Co-Pilot
-                  </button>
-                </div>
-                
-                <div className="flex-1 overflow-hidden">
-                  {rightPanelTab === "chat" ? (
-                    <ChatPanel
-                      socket={socket}
-                      roomId={roomId}
-                      currentUser={currentUser}
-                      users={users}
-                      activeFileName={activeFile ? activeFile.name : ""}
-                      activeCode={activeCode}
-                      activeLanguage={activeLanguage}
-                    />
+                {/* Content Stream */}
+                <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-black/40">
+                  {consoleTab === "output" ? (
+                    <pre className="font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-text text-left">
+                      {execRunning ? (
+                        <span className="text-slate-400 animate-pulse font-medium">Compiling & executing code...</span>
+                      ) : execError ? (
+                        <span className="console-stderr block">{execError}</span>
+                      ) : (
+                        <span className="console-stdout block">{execOutput}</span>
+                      )}
+                    </pre>
                   ) : (
-                    <AIAssistant
-                      activeFileName={activeFile ? activeFile.name : ""}
-                      activeCode={activeCode}
-                      activeLanguage={activeLanguage}
+                    <iframe
+                      title="HTML Live Preview"
+                      sandbox="allow-scripts"
+                      srcDoc={getCombinedHtmlPreview()}
+                      className="w-full h-full border-none bg-white rounded shadow-inner"
                     />
                   )}
                 </div>
-              </aside>
+              </div>
             )}
-          </main>
-        </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar: Chat Panels & AI Assistant */}
+        {showChat && (
+          <aside className="w-72 bg-[#18181b] border-l border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 flex select-none">
+            
+            {/* Right Pane Tab Buttons */}
+            <div className="flex border-b border-[#27272a] flex-shrink-0 bg-black/10">
+              <button
+                onClick={() => setRightPanelTab("chat")}
+                className={`flex-1 py-1.5 text-[9px] font-bold tracking-wider uppercase border-r border-[#27272a] flex items-center justify-center gap-1 transition cursor-pointer ${
+                  rightPanelTab === "chat" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <MessageSquare className="h-3 w-3 text-slate-400" />
+                <span>Discussion</span>
+              </button>
+              <button
+                onClick={() => setRightPanelTab("ai")}
+                className={`flex-1 py-1.5 text-[9px] font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition cursor-pointer ${
+                  rightPanelTab === "ai" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Bot className="h-3 w-3 text-slate-400" />
+                <span>AI Assistant</span>
+              </button>
+            </div>
+            
+            {/* Dynamic Content Panel view */}
+            <div className="flex-1 overflow-hidden">
+              {rightPanelTab === "chat" ? (
+                <ChatPanel
+                  socket={socket}
+                  roomId={roomId}
+                  currentUser={currentUser}
+                  users={users}
+                  activeFileName={activeFile ? activeFile.name : ""}
+                  activeCode={activeCode}
+                  activeLanguage={activeLanguage}
+                />
+              ) : (
+                <AIAssistant
+                  activeFileName={activeFile ? activeFile.name : ""}
+                  activeCode={activeCode}
+                  activeLanguage={activeLanguage}
+                />
+              )}
+            </div>
+          </aside>
+        )}
       </div>
 
-      {/* Settings Modal */}
+      {/* Editor Settings Configuration Modal */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-          <div className="relative w-full max-w-sm rounded-3xl border border-white/12 bg-slate-950 p-6 shadow-2xl animate-rise">
-            <h3 className="text-base font-bold text-white mb-4">Editor Configuration</h3>
+          <div className="relative w-full max-w-sm rounded-xl border border-[#27272a] bg-[#18181b] p-5 shadow-2xl animate-rise text-left">
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                <Settings className="h-4 w-4 text-slate-400" />
+                <span>Editor Setup</span>
+              </h3>
+              <button onClick={() => setShowSettingsModal(false)} className="p-0.5 rounded text-slate-500 hover:text-slate-350 cursor-pointer">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 text-xs">
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Monaco Theme</label>
+                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Monaco Theme</label>
                 <select
                   value={editorSettings.theme}
                   onChange={(e) => updateSetting("theme", e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-xs text-white outline-none focus:border-cyan-300"
+                  className="w-full rounded border border-[#27272a] bg-black/35 px-3 py-2 text-white outline-none focus:border-zinc-700"
                 >
                   <option value="vs-dark">VS Dark (Default)</option>
                   <option value="light">VS Light</option>
@@ -1012,23 +1062,23 @@ function RoomApp({ currentUser, onLogout }) {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Font Size ({editorSettings.fontSize}px)</label>
+                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Font Size ({editorSettings.fontSize}px)</label>
                 <input
                   type="range"
-                  min="12"
+                  min="10"
                   max="24"
                   value={editorSettings.fontSize}
                   onChange={(e) => updateSetting("fontSize", parseInt(e.target.value))}
-                  className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                  className="w-full h-1 bg-black/40 rounded appearance-none cursor-pointer accent-slate-400"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Tab Size</label>
+                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Tab Size</label>
                 <select
                   value={editorSettings.tabSize}
                   onChange={(e) => updateSetting("tabSize", parseInt(e.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-xs text-white outline-none focus:border-cyan-300"
+                  className="w-full rounded border border-[#27272a] bg-black/35 px-3 py-2 text-white outline-none focus:border-zinc-700"
                 >
                   <option value="2">2 Spaces</option>
                   <option value="4">4 Spaces</option>
@@ -1037,12 +1087,12 @@ function RoomApp({ currentUser, onLogout }) {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end pt-3 border-t border-[#27272a]">
               <button
                 onClick={() => setShowSettingsModal(false)}
-                className="rounded-xl bg-white hover:opacity-90 px-4 py-2 text-xs font-semibold text-slate-950 transition cursor-pointer"
+                className="rounded bg-[#27272a] hover:bg-[#27272a]/70 px-4 py-2 text-xs font-semibold text-white transition cursor-pointer"
               >
-                Close Settings
+                Done
               </button>
             </div>
           </div>
@@ -1107,4 +1157,3 @@ export default function App() {
     </GoogleOAuthProvider>
   );
 }
-

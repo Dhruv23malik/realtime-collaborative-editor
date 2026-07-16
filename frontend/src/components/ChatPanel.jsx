@@ -1,6 +1,23 @@
 import { useEffect, useRef, useState } from "react";
+import { 
+  MessageSquare, 
+  Lock, 
+  Mic, 
+  Square, 
+  Code, 
+  Send, 
+  AlertTriangle 
+} from "lucide-react";
 
-export default function ChatPanel({ socket, roomId, currentUser, users = [], activeFileName = "", activeCode = "", activeLanguage = "javascript" }) {
+export default function ChatPanel({ 
+  socket, 
+  roomId, 
+  currentUser, 
+  users = [], 
+  activeFileName = "", 
+  activeCode = "", 
+  activeLanguage = "javascript" 
+}) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [guestName] = useState(() => `Guest-${Math.floor(Math.random() * 1000)}`);
@@ -76,7 +93,7 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
     }
     const selection = window.getSelection()?.toString();
     const codeToShare = selection || activeCode;
-    const formattedSnippet = `\`\`\`${activeLanguage}\n// Code shared from ${activeFileName}:\n${codeToShare}\n\`\`\``;
+    const formattedSnippet = `\`\`\`${activeLanguage}\n// Shared from ${activeFileName}:\n${codeToShare}\n\`\`\``;
     setInput((prev) => (prev ? prev + "\n" + formattedSnippet : formattedSnippet));
   };
 
@@ -144,28 +161,26 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
   const otherUsers = users.filter((u) => u.username !== displayName);
 
   return (
-    <div className="flex h-full min-h-[320px] flex-col bg-transparent text-slate-100">
-      <div className="border-b border-white/8 px-5 py-4 flex-shrink-0">
-        <div>
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-slate-400">
+    <div className="flex h-full min-h-[320px] flex-col bg-transparent text-slate-350">
+      <div className="border-b border-[#27272a] px-4 py-2.5 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-slate-400" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Discussion
-          </p>
-          <h3 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-white">
-            Workspace Chat
-          </h3>
+          </span>
         </div>
 
         {/* Tab Selection */}
-        <div className="mt-4 flex rounded-2xl bg-slate-950/45 p-1 border border-white/5">
+        <div className="mt-3 flex rounded bg-black/20 p-0.5 border border-[#27272a]">
           <button
             onClick={() => setChatTab("room")}
-            className={`flex-1 py-1.5 text-xs font-medium rounded-xl transition ${
+            className={`flex-1 py-0.5 text-[10px] font-medium rounded transition-all ${
               chatTab === "room"
-                ? "bg-white/10 text-white border border-white/5"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#27272a] text-white"
+                : "text-slate-450 hover:text-slate-200"
             }`}
           >
-            Room Chat
+            Room
           </button>
           <button
             onClick={() => {
@@ -174,52 +189,55 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
                 setTargetUser(otherUsers[0].username);
               }
             }}
-            className={`flex-1 py-1.5 text-xs font-medium rounded-xl transition ${
+            className={`flex-1 py-0.5 text-[10px] font-medium rounded transition-all ${
               chatTab === "dm"
-                ? "bg-white/10 text-white border border-white/5"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#27272a] text-white"
+                : "text-slate-450 hover:text-slate-200"
             }`}
           >
-            Direct Messages DMs
+            DMs
           </button>
         </div>
 
         {/* DM User Selector */}
         {chatTab === "dm" && (
-          <div className="mt-3">
-            <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
-              Select Recipient:
-            </label>
+          <div className="mt-2.5">
             {otherUsers.length > 0 ? (
-              <select
-                value={targetUser}
-                onChange={(e) => setTargetUser(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-slate-900 px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-300"
-              >
-                {otherUsers.map((u) => (
-                  <option key={u.socketId || u.username} value={u.username}>
-                    {u.username} {u.socketId ? "• online" : ""}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] uppercase font-bold text-slate-500 whitespace-nowrap">
+                  Recipient:
+                </span>
+                <select
+                  value={targetUser}
+                  onChange={(e) => setTargetUser(e.target.value)}
+                  className="w-full rounded border border-[#27272a] bg-black/35 px-2 py-0.5 text-[10px] text-white outline-none focus:border-zinc-700"
+                >
+                  {otherUsers.map((u) => (
+                    <option key={u.socketId || u.username} value={u.username}>
+                      {u.username} {u.socketId ? "• active" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
             ) : (
-              <p className="text-xs text-rose-400 font-semibold py-1">
-                ⚠️ No other users in this room currently.
-              </p>
+              <div className="flex items-center gap-1.5 mt-1 rounded border border-rose-900/35 bg-rose-950/20 px-2.5 py-1 text-[10px] text-rose-400">
+                <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>No active collaborators to DM</span>
+              </div>
             )}
           </div>
         )}
       </div>
 
       {/* Message Feed */}
-      <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4 custom-scrollbar">
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 custom-scrollbar">
         {filteredMessages.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-white/12 bg-slate-950/20 px-4 py-5 text-sm leading-6 text-slate-400">
+          <div className="rounded border border-dashed border-[#27272a] bg-black/10 px-4 py-5 text-center text-[11px] leading-relaxed text-slate-400">
             {chatTab === "room"
-              ? "Start the thread with a quick status note or a handoff for your collaborator."
+              ? "Start the thread with a status update or handoff note for collaborators."
               : targetUser
-              ? `Send a private message to ${targetUser}. Only the two of you can view this stream.`
-              : "Select an online room member above to start direct messaging."}
+              ? `Direct message with ${targetUser}. Only the two of you can view this stream.`
+              : "Select a collaborator above to start direct messaging."}
           </div>
         )}
 
@@ -233,23 +251,28 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
               className={`flex ${isSelf ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[92%] rounded-[22px] border px-3.5 py-3.5 shadow-md ${
+                className={`max-w-[88%] rounded-lg border px-3 py-2 text-left ${
                   isSelf
-                    ? "border-cyan-400/20 bg-cyan-400/10 text-white"
+                    ? "border-[#27272a] bg-[#27272a]/65 text-slate-100"
                     : msg.isPrivate
-                    ? "border-fuchsia-400/25 bg-fuchsia-400/10 text-slate-100"
-                    : "border-white/10 bg-white/6 text-slate-100"
+                    ? "border-fuchsia-900/40 bg-fuchsia-950/25 text-slate-200"
+                    : "border-[#27272a] bg-transparent text-slate-200"
                 }`}
               >
-                <div className="mb-1.5 flex items-center gap-2 text-[0.72rem] font-bold">
+                <div className="mb-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      isSelf ? "bg-cyan-300" : msg.isPrivate ? "bg-fuchsia-400" : "bg-emerald-300"
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      isSelf ? "bg-slate-450" : msg.isPrivate ? "bg-fuchsia-500" : "bg-emerald-500"
                     }`}
                   />
-                  <span className={isSelf ? "text-cyan-100" : msg.isPrivate ? "text-fuchsia-200" : "text-emerald-200"}>
-                    {msg.user} {msg.isPrivate ? `🔒 (to ${msg.toUser})` : ""}
+                  <span className={isSelf ? "text-slate-400" : msg.isPrivate ? "text-fuchsia-400" : "text-emerald-400"}>
+                    {msg.user}
                   </span>
+                  {msg.isPrivate && (
+                    <span className="flex items-center gap-0.5 text-fuchsia-405 font-medium">
+                      <Lock className="h-2 w-2" /> (Private)
+                    </span>
+                  )}
                 </div>
                 
                 {isAudio ? (
@@ -257,16 +280,15 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
                     <audio
                       src={msg.text.slice(8)}
                       controls
-                      className="max-w-full h-8 opacity-90"
+                      className="max-w-full h-7 opacity-85"
                     />
                   </div>
                 ) : msg.text.includes("```") ? (
-                  // Custom rendering for code snippets
-                  <div className="text-xs text-left bg-slate-950 p-2.5 rounded-xl border border-white/5 font-mono text-cyan-200 mt-1 whitespace-pre overflow-x-auto max-w-full">
+                  <div className="text-[10px] bg-black/40 p-2 rounded border border-[#27272a] font-mono text-slate-300 mt-1.5 overflow-x-auto whitespace-pre">
                     {msg.text}
                   </div>
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-100">
+                  <p className="whitespace-pre-wrap text-[11px] leading-relaxed">
                     {msg.text}
                   </p>
                 )}
@@ -279,68 +301,70 @@ export default function ChatPanel({ socket, roomId, currentUser, users = [], act
       </div>
 
       {/* Input controls */}
-      <div className="border-t border-white/8 px-4 py-4 flex-shrink-0">
-        <div className="rounded-[24px] border border-white/10 bg-slate-950/35 p-2 shadow-inner shadow-slate-950/20">
-          <div className="flex flex-col gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder={
-                isRecording
-                  ? "🔴 Recording audio..."
-                  : chatTab === "dm"
-                  ? `Message ${targetUser || "recipient"} privately...`
-                  : "Type a quick update for the room..."
-              }
-              disabled={isRecording}
-              className="w-full bg-transparent px-3 pt-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
-            />
-            <div className="flex items-center justify-between px-2 pb-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-500">{displayName}</span>
+      <div className="border-t border-[#27272a] px-3 py-3 flex-shrink-0">
+        <div className="rounded border border-[#27272a] bg-black/25 p-1.5">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder={
+              isRecording
+                ? "Recording audio..."
+                : chatTab === "dm"
+                ? `Message ${targetUser || "recipient"} privately...`
+                : "Type an update for the room..."
+            }
+            disabled={isRecording}
+            className="w-full bg-transparent px-2 py-0.5 text-[10px] text-white placeholder:text-zinc-650 focus:outline-none"
+          />
+          <div className="mt-1.5 flex items-center justify-between border-t border-[#27272a]/40 pt-1.5 px-1.5">
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] text-slate-500 font-medium">
+                {displayName}
+              </span>
 
-                {/* Voice record toggle */}
-                {!isRecording ? (
-                  <button
-                    type="button"
-                    onClick={startRecording}
-                    title="Record voice message"
-                    className="p-1 rounded-full text-slate-400 hover:text-rose-400 transition cursor-pointer"
-                  >
-                    🎙️
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={stopRecording}
-                    title="Stop recording"
-                    className="p-1 px-2.5 rounded-full bg-rose-500 text-white text-[10px] font-bold pulse-recording cursor-pointer"
-                  >
-                    ⏹️ STOP
-                  </button>
-                )}
-
-                {/* Snippet insert button */}
+              {/* Voice record toggle */}
+              {!isRecording ? (
                 <button
                   type="button"
-                  onClick={shareSnippet}
-                  title="Share current file/selection as code snippet"
-                  className="p-1 rounded-full text-slate-400 hover:text-cyan-300 transition cursor-pointer text-xs"
+                  onClick={startRecording}
+                  title="Record voice message"
+                  className="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-[#27272a]/40 transition cursor-pointer"
                 >
-                  Code 💻
+                  <Mic className="h-3.5 w-3.5" />
                 </button>
-              </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={stopRecording}
+                  title="Stop recording"
+                  className="flex items-center gap-1 p-1 px-2 rounded bg-rose-700 text-white text-[9px] font-bold pulse-recording cursor-pointer"
+                >
+                  <Square className="h-2.5 w-2.5 fill-current" />
+                  <span>STOP</span>
+                </button>
+              )}
 
+              {/* Snippet insert button */}
               <button
                 type="button"
-                onClick={() => sendMessage()}
-                disabled={!input.trim() || isRecording}
-                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                onClick={shareSnippet}
+                title="Share current file/selection as code snippet"
+                className="flex items-center gap-1 p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-[#27272a]/40 transition cursor-pointer text-[9px]"
               >
-                Send
+                <Code className="h-3 w-3" />
+                <span className="hidden sm:inline">Share Code</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={() => sendMessage()}
+              disabled={!input.trim() || isRecording}
+              className="flex items-center justify-center p-1 rounded bg-[#27272a] hover:bg-[#27272a]/70 text-slate-200 transition disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              <Send className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </div>
