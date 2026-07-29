@@ -199,8 +199,8 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
           const contentToRender = codeContent.join("\n");
           codeContent = [];
           return (
-            <div key={idx} className="my-2.5 overflow-x-auto rounded-xl border border-white/[0.08] bg-slate-950 p-3 font-mono text-[11px] text-cyan-200">
-              <div className="flex justify-between items-center text-[9px] text-slate-500 mb-1.5 border-b border-white/[0.05] pb-1.5 font-sans font-semibold">
+            <div key={idx} className="my-2.5 overflow-x-auto rounded-xl border border-white/[0.08] bg-slate-950 p-3 font-mono text-sm text-cyan-200">
+              <div className="flex justify-between items-center text-xs text-slate-500 mb-1.5 border-b border-white/[0.05] pb-1.5 font-sans font-semibold">
                 <span className="uppercase">{codeLang || "code"}</span>
                 <button
                   onClick={() => navigator.clipboard.writeText(contentToRender)}
@@ -265,7 +265,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
             {parts.map((part, pIdx) => {
               if (pIdx % 2 === 1) {
                 return (
-                  <code key={pIdx} className="rounded bg-white/10 px-1 py-0.5 font-mono text-[10px] text-cyan-300 font-medium">
+                  <code key={pIdx} className="rounded bg-white/10 px-1 py-0.5 font-mono text-xs text-cyan-300 font-medium">
                     {part}
                   </code>
                 );
@@ -290,14 +290,14 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Bot className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               AI Assistant
             </span>
           </div>
 
           <button
             onClick={() => setShowKeyInput(!showKeyInput)}
-            className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 px-2 py-0.5 text-[9px] text-slate-300 transition-all cursor-pointer font-semibold"
+            className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 px-2 py-0.5 text-xs text-slate-300 transition-all cursor-pointer font-semibold"
           >
             <Key className="h-3 w-3 text-slate-450" />
             <span>{apiKey ? "Edit Key" : "Set API Key"}</span>
@@ -306,7 +306,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
 
         {showKeyInput && (
           <div className="mt-2.5 rounded border border-[#27272a] bg-black/20 p-2.5">
-            <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+            <p className="text-xs text-slate-500 mb-2 leading-relaxed">
               Provide your Google Gemini API Key to enable high-quality code analysis:
             </p>
             <div className="flex gap-2">
@@ -315,14 +315,14 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
                 placeholder="AIzaSy..."
                 defaultValue={apiKey}
                 id="gemini-key-input"
-                className="flex-1 rounded border border-[#27272a] bg-[#18181b] px-2 py-0.5 text-[10px] text-white outline-none focus:border-zinc-750"
+                className="flex-1 rounded border border-[#27272a] bg-[#18181b] px-2 py-0.5 text-xs text-white outline-none focus:border-zinc-750"
               />
               <button
                 onClick={() => {
                   const val = document.getElementById("gemini-key-input")?.value || "";
                   saveApiKey(val.trim());
                 }}
-                className="rounded bg-[#27272a] hover:bg-[#27272a]/70 px-2.5 py-0.5 text-[10px] font-semibold text-white transition cursor-pointer"
+                className="rounded bg-[#27272a] hover:bg-[#27272a]/70 px-2.5 py-0.5 text-xs font-semibold text-white transition cursor-pointer"
               >
                 Save
               </button>
@@ -351,7 +351,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
                     : "border-[#27272a] bg-[#27272a]/65 text-slate-100"
                 }`}
               >
-                <div className="mb-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                <div className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
                   {isAI ? (
                     <>
                       {isKeyMsg ? (
@@ -374,7 +374,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         })}
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-lg border border-[#27272a] bg-transparent px-3 py-2 text-slate-400 text-[11px] flex items-center gap-1.5">
+            <div className="rounded-lg border border-[#27272a] bg-transparent px-3 py-2 text-slate-400 text-sm flex items-center gap-1.5">
               <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce" />
               <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce [animation-delay:0.2s]" />
               <div className="h-1 w-1 rounded-full bg-slate-450 animate-bounce [animation-delay:0.4s]" />
@@ -390,7 +390,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         <button
           onClick={() => handleSend("Explain the active file code")}
           disabled={loading || !activeFileName}
-          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-xs text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <BookOpen className="h-3 w-3 text-slate-450" />
           <span>Explain</span>
@@ -398,7 +398,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         <button
           onClick={() => handleSend("Find errors in the active file and suggest fixes")}
           disabled={loading || !activeFileName}
-          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-xs text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <Cpu className="h-3 w-3 text-slate-455" />
           <span>Debug</span>
@@ -406,7 +406,7 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
         <button
           onClick={() => handleSend("How can I optimize this code for performance?")}
           disabled={loading || !activeFileName}
-          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-[9px] text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex items-center gap-1 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/40 px-2 py-0.5 text-xs text-slate-400 hover:text-slate-200 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <Flame className="h-3 w-3 text-slate-455" />
           <span>Optimize</span>
@@ -421,11 +421,11 @@ Provide detailed explanations, code snippets, or error fixes inside clean Markdo
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !loading && handleSend()}
             placeholder="Ask a question about the active workspace..."
-            className="w-full bg-transparent px-2 py-0.5 text-[10px] text-white placeholder:text-zinc-650 focus:outline-none"
+            className="w-full bg-transparent px-2 py-0.5 text-xs text-white placeholder:text-zinc-650 focus:outline-none"
             disabled={loading}
           />
           <div className="mt-1.5 flex items-center justify-between border-t border-[#27272a]/40 pt-1.5 px-1.5">
-            <span className="text-[9px] text-slate-500 font-medium">
+            <span className="text-xs text-slate-500 font-medium">
               {activeFileName ? `Context: ${activeFileName}` : "Global Chat"}
             </span>
             <button

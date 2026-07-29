@@ -619,27 +619,27 @@ function RoomApp({ currentUser, onLogout }) {
       <header className="relative z-40 flex h-12 items-center justify-between border-b border-[#27272a] bg-[#18181b] px-4 select-none flex-shrink-0">
         <div className="flex items-center gap-2.5">
           {/* Logo badge */}
-          <div className="flex h-7 w-7 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-[10px] font-bold text-slate-200">
+          <div className="flex h-7 w-7 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-xs font-bold text-slate-200">
             CE
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-slate-200 tracking-wide">Collaborative Editor</span>
+              <span className="text-sm font-semibold text-slate-200 tracking-wide">Collaborative Editor</span>
             </div>
           </div>
         </div>
 
         {/* Middle: Room Code & Link Shortener */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-md border border-[#27272a] bg-black/30 px-2 py-0.5 text-[10px]">
-            <span className="text-slate-500 uppercase tracking-widest text-[8px] font-bold">Room:</span>
+          <div className="flex items-center gap-1 rounded-md border border-[#27272a] bg-black/30 px-2 py-0.5 text-xs">
+            <span className="text-slate-500 uppercase tracking-widest text-xs font-bold">Room:</span>
             <span className="font-mono text-slate-300 font-medium">{roomId}</span>
           </div>
 
           <button
             type="button"
             onClick={handleCopyLink}
-            className={`flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-medium transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-medium transition-all duration-200 cursor-pointer ${
               copied
                 ? "border-emerald-800/40 bg-emerald-950/30 text-emerald-400"
                 : "border-[#27272a] bg-[#27272a]/30 text-slate-300 hover:bg-[#27272a]/60"
@@ -758,8 +758,8 @@ function RoomApp({ currentUser, onLogout }) {
           {/* Header */}
           <div className="border-b border-[#27272a] px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Explorer</p>
-              <h2 className="text-[11px] font-semibold text-white mt-0.5">Workspace Files</h2>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Explorer</p>
+              <h2 className="text-sm font-semibold text-white mt-0.5">Workspace Files</h2>
             </div>
             
             <div className="flex items-center gap-1.5">
@@ -789,7 +789,7 @@ function RoomApp({ currentUser, onLogout }) {
             <div className="flex gap-1.5">
               <button
                 onClick={() => document.getElementById("file-upload-input").click()}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-[9px] font-bold text-slate-300 transition cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-xs font-bold text-slate-300 transition cursor-pointer"
               >
                 <Upload className="h-3 w-3 text-slate-400" />
                 <span>Import</span>
@@ -803,7 +803,7 @@ function RoomApp({ currentUser, onLogout }) {
               
               <button
                 onClick={exportWorkspaceAsZip}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-[9px] font-bold text-slate-300 transition cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-xs font-bold text-slate-300 transition cursor-pointer"
               >
                 <Download className="h-3 w-3 text-slate-400" />
                 <span>Export ZIP</span>
@@ -818,7 +818,7 @@ function RoomApp({ currentUser, onLogout }) {
                 placeholder="Search filenames..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded border border-[#27272a] bg-black/20 px-2 py-1 pl-7 text-[10px] text-white placeholder:text-zinc-650 outline-none focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/20 px-2 py-1 pl-7 text-xs text-white placeholder:text-zinc-650 outline-none focus:border-zinc-700"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery("")} className="absolute right-2 top-2.5 text-slate-500 hover:text-slate-300">
@@ -829,7 +829,7 @@ function RoomApp({ currentUser, onLogout }) {
 
             {/* File List / Tree hierarchy */}
             <div className="flex flex-col">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2 block">Files</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">Files</span>
               
               <div
                 className="space-y-0.5 min-h-[180px]"
@@ -854,14 +854,14 @@ function RoomApp({ currentUser, onLogout }) {
                             setActiveFileId(f._id);
                             setSearchQuery("");
                           }}
-                          className={`flex items-center gap-2 py-1 px-1.5 rounded cursor-pointer transition hover:bg-[#27272a]/30 text-[11px] ${
+                          className={`flex items-center gap-2 py-1 px-1.5 rounded cursor-pointer transition hover:bg-[#27272a]/30 text-sm ${
                             activeFileId === f._id ? "bg-[#27272a] text-white" : "text-slate-400"
                           }`}
                         >
                           <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                           <div className="min-w-0">
                             <p className="font-medium truncate">{f.name}</p>
-                            <p className="text-[9px] text-slate-550 truncate">{f.path}</p>
+                            <p className="text-xs text-slate-550 truncate">{f.path}</p>
                           </div>
                         </div>
                       ))
@@ -883,8 +883,8 @@ function RoomApp({ currentUser, onLogout }) {
           
           {/* Breadcrumb / Editor Tab status bar */}
           <div className="h-9 border-b border-[#27272a] bg-[#18181b]/80 flex items-center justify-between px-4 select-none flex-shrink-0">
-            <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-400">
-              <span className="text-[9px] tracking-wide text-slate-500">active file:</span>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <span className="text-xs tracking-wide text-slate-500">active file:</span>
               <span className="text-slate-300 font-mono">
                 {activeFile ? activeFile.path : "No active file selected"}
               </span>
@@ -895,7 +895,7 @@ function RoomApp({ currentUser, onLogout }) {
                 <button
                   onClick={runCode}
                   disabled={execRunning}
-                  className="rounded bg-emerald-750 hover:bg-emerald-700 px-2 py-0.5 text-[9px] font-bold text-white flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40"
+                  className="rounded bg-emerald-750 hover:bg-emerald-700 px-2 py-0.5 text-xs font-bold text-white flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40"
                 >
                   <Play className="h-2.5 w-2.5 fill-current" />
                   <span>Run</span>
@@ -904,7 +904,7 @@ function RoomApp({ currentUser, onLogout }) {
               
               <button
                 onClick={() => setConsoleOpen(!consoleOpen)}
-                className={`rounded border px-2 py-0.5 text-[9px] font-semibold transition cursor-pointer ${
+                className={`rounded border px-2 py-0.5 text-xs font-semibold transition cursor-pointer ${
                   consoleOpen 
                     ? "border-[#27272a] bg-[#27272a] text-slate-200"
                     : "border-[#27272a] bg-transparent text-slate-400 hover:text-slate-200"
@@ -930,7 +930,7 @@ function RoomApp({ currentUser, onLogout }) {
                   editorSettings={editorSettings}
                 />
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-slate-500 text-[11px] gap-3 max-w-sm mx-auto text-center px-4">
+                <div className="h-full flex flex-col items-center justify-center text-slate-500 text-sm gap-3 max-w-sm mx-auto text-center px-4">
                   <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl">
                     <FolderTree className="h-6 w-6 text-slate-400" />
                   </div>
@@ -951,7 +951,7 @@ function RoomApp({ currentUser, onLogout }) {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setConsoleTab("output")}
-                      className={`text-[10px] font-semibold py-0.5 px-1.5 rounded transition-all ${
+                      className={`text-xs font-semibold py-0.5 px-1.5 rounded transition-all ${
                         consoleTab === "output" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
@@ -960,7 +960,7 @@ function RoomApp({ currentUser, onLogout }) {
                     {(activeLanguage === "html" || activeLanguage === "css") && (
                       <button
                         onClick={() => setConsoleTab("preview")}
-                        className={`text-[10px] font-semibold py-0.5 px-1.5 rounded transition-all ${
+                        className={`text-xs font-semibold py-0.5 px-1.5 rounded transition-all ${
                           consoleTab === "preview" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
                         }`}
                       >
@@ -980,7 +980,7 @@ function RoomApp({ currentUser, onLogout }) {
                 {/* Content Stream */}
                 <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-black/40">
                   {consoleTab === "output" ? (
-                    <pre className="font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-text text-left">
+                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap select-text text-left">
                       {execRunning ? (
                         <span className="text-slate-400 animate-pulse font-medium">Compiling & executing code...</span>
                       ) : execError ? (
@@ -1011,7 +1011,7 @@ function RoomApp({ currentUser, onLogout }) {
             <div className="flex border-b border-[#27272a] flex-shrink-0 bg-black/10">
               <button
                 onClick={() => setRightPanelTab("chat")}
-                className={`flex-1 py-1.5 text-[9px] font-bold tracking-wider uppercase border-r border-[#27272a] flex items-center justify-center gap-1 transition cursor-pointer ${
+                className={`flex-1 py-1.5 text-xs font-bold tracking-wider uppercase border-r border-[#27272a] flex items-center justify-center gap-1 transition cursor-pointer ${
                   rightPanelTab === "chat" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -1020,7 +1020,7 @@ function RoomApp({ currentUser, onLogout }) {
               </button>
               <button
                 onClick={() => setRightPanelTab("ai")}
-                className={`flex-1 py-1.5 text-[9px] font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition cursor-pointer ${
+                className={`flex-1 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition cursor-pointer ${
                   rightPanelTab === "ai" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
                 }`}
               >
@@ -1069,7 +1069,7 @@ function RoomApp({ currentUser, onLogout }) {
             
             <div className="space-y-4 text-xs">
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Monaco Theme</label>
+                <label className="text-xs uppercase font-bold text-slate-500 block mb-1.5">Monaco Theme</label>
                 <select
                   value={editorSettings.theme}
                   onChange={(e) => updateSetting("theme", e.target.value)}
@@ -1082,7 +1082,7 @@ function RoomApp({ currentUser, onLogout }) {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Font Size ({editorSettings.fontSize}px)</label>
+                <label className="text-xs uppercase font-bold text-slate-500 block mb-1.5">Font Size ({editorSettings.fontSize}px)</label>
                 <input
                   type="range"
                   min="10"
@@ -1094,7 +1094,7 @@ function RoomApp({ currentUser, onLogout }) {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Tab Size</label>
+                <label className="text-xs uppercase font-bold text-slate-500 block mb-1.5">Tab Size</label>
                 <select
                   value={editorSettings.tabSize}
                   onChange={(e) => updateSetting("tabSize", parseInt(e.target.value))}

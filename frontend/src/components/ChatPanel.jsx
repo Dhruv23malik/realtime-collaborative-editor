@@ -173,7 +173,7 @@ export default function ChatPanel({
           <div className="flex items-center justify-center h-6 w-6 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
             <MessageSquare className="h-3.5 w-3.5" />
           </div>
-          <span className="text-[12px] font-semibold tracking-wide text-white">
+          <span className="text-sm font-semibold tracking-wide text-white">
             Team Chat
           </span>
         </div>
@@ -182,7 +182,7 @@ export default function ChatPanel({
         <div className="mt-4 flex rounded-xl bg-[#09090b]/80 p-1 border border-white/[0.04] shadow-inner relative">
           <button
             onClick={() => setChatTab("room")}
-            className={`relative flex-1 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-300 z-10 ${
+            className={`relative flex-1 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 ${
               chatTab === "room"
                 ? "text-cyan-400"
                 : "text-slate-500 hover:text-slate-300"
@@ -200,7 +200,7 @@ export default function ChatPanel({
                 setTargetUser(otherUsers[0].username);
               }
             }}
-            className={`relative flex-1 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-300 z-10 ${
+            className={`relative flex-1 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 ${
               chatTab === "dm"
                 ? "text-purple-400"
                 : "text-slate-500 hover:text-slate-300"
@@ -218,14 +218,14 @@ export default function ChatPanel({
           <div className="mt-4 animate-rise">
             {otherUsers.length > 0 ? (
               <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] uppercase font-bold text-slate-500/80 tracking-wider ml-1">
+                <span className="text-xs uppercase font-bold text-slate-500/80 tracking-wider ml-1">
                   Recipient
                 </span>
                 <div className="relative">
                   <select
                     value={targetUser}
                     onChange={(e) => setTargetUser(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-white/[0.08] bg-[#0c0f1d] px-3 py-2 text-[11px] text-white outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all shadow-inner"
+                    className="w-full appearance-none rounded-lg border border-white/[0.08] bg-[#0c0f1d] px-3 py-2 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all shadow-inner"
                   >
                     {otherUsers.map((u) => (
                       <option key={u.socketId || u.username} value={u.username}>
@@ -241,7 +241,7 @@ export default function ChatPanel({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 mt-2 rounded-lg border border-rose-900/30 bg-rose-950/20 px-3 py-2 text-[11px] text-rose-400/90 shadow-inner">
+              <div className="flex items-center gap-2 mt-2 rounded-lg border border-rose-900/30 bg-rose-950/20 px-3 py-2 text-sm text-rose-400/90 shadow-inner">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 <span>No active collaborators to DM</span>
               </div>
@@ -257,14 +257,14 @@ export default function ChatPanel({
             <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 border border-white/[0.05] flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(34,211,238,0.1)]">
               <MessageSquare className="h-6 w-6 text-cyan-400/80" />
             </div>
-            <p className="text-center text-[13px] font-semibold text-slate-200">
+            <p className="text-center text-base font-semibold text-slate-200">
               {chatTab === "room"
                 ? "Start the conversation"
                 : targetUser
                 ? `Private chat with ${targetUser}`
                 : "Select a collaborator"}
             </p>
-            <p className="text-center text-[11px] text-slate-500 mt-2 max-w-[200px] leading-relaxed">
+            <p className="text-center text-sm text-slate-500 mt-2 max-w-[200px] leading-relaxed">
               {chatTab === "room" 
                 ? "Share ideas, code snippets, or handoff notes with the entire room." 
                 : "Messages sent here are end-to-end encrypted and visible only to the two of you."}
@@ -291,12 +291,12 @@ export default function ChatPanel({
                 }`}
               >
                 {!isSelf && (
-                  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                  <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-400">
                     <span className={msg.isPrivate ? "text-purple-300" : "text-cyan-400"}>
                       {msg.user}
                     </span>
                     {msg.isPrivate && (
-                      <span className="flex items-center gap-0.5 text-purple-300/80 bg-purple-500/20 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">
+                      <span className="flex items-center gap-0.5 text-purple-300/80 bg-purple-500/20 px-1.5 py-0.5 rounded text-xs uppercase tracking-wider">
                         <Lock className="h-2 w-2" /> Private
                       </span>
                     )}
@@ -312,11 +312,11 @@ export default function ChatPanel({
                     />
                   </div>
                 ) : msg.text.includes("```") ? (
-                  <div className="text-[11px] bg-[#05070f]/60 p-3 rounded-lg border border-white/[0.05] font-mono text-slate-300 mt-2 overflow-x-auto whitespace-pre shadow-inner">
+                  <div className="text-sm bg-[#05070f]/60 p-3 rounded-lg border border-white/[0.05] font-mono text-slate-300 mt-2 overflow-x-auto whitespace-pre shadow-inner">
                     {msg.text}
                   </div>
                 ) : (
-                  <p className="whitespace-pre-wrap text-[12px] leading-relaxed">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
                     {msg.text}
                   </p>
                 )}
@@ -348,7 +348,7 @@ export default function ChatPanel({
                 : "Type your message..."
             }
             disabled={isRecording}
-            className="w-full bg-transparent px-4 py-3 text-[12px] text-white placeholder:text-slate-500 focus:outline-none resize-none h-[48px] custom-scrollbar"
+            className="w-full bg-transparent px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none h-[48px] custom-scrollbar"
             rows={1}
           />
           <div className="flex items-center justify-between bg-black/20 pt-2 pb-2 px-3 border-t border-white/[0.03]">
@@ -368,7 +368,7 @@ export default function ChatPanel({
                   type="button"
                   onClick={stopRecording}
                   title="Stop recording"
-                  className="flex items-center gap-1.5 p-1.5 px-3 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-bold pulse-recording cursor-pointer transition-all hover:bg-rose-500/30"
+                  className="flex items-center gap-1.5 p-1.5 px-3 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold pulse-recording cursor-pointer transition-all hover:bg-rose-500/30"
                 >
                   <Square className="h-3 w-3 fill-current" />
                   <span>STOP REC</span>
@@ -380,7 +380,7 @@ export default function ChatPanel({
                 type="button"
                 onClick={shareSnippet}
                 title="Share code snippet"
-                className="flex items-center gap-1.5 p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors cursor-pointer text-[10px] font-semibold tracking-wide"
+                className="flex items-center gap-1.5 p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors cursor-pointer text-xs font-semibold tracking-wide"
               >
                 <Code className="h-4 w-4" />
                 <span className="hidden sm:inline">Snippet</span>

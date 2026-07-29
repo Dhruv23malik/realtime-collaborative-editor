@@ -35,19 +35,19 @@ export default function Presence({ users = [] }) {
                     alt={user.username}
                   />
                 ) : (
-                  <div className="h-full w-full rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                  <div className="h-full w-full rounded-full flex items-center justify-center text-xs font-bold text-white uppercase">
                     {user.username.slice(0, 2)}
                   </div>
                 )}
                 {/* Tooltip */}
-                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 rounded bg-[#090d16] px-2 py-1 text-[10px] font-medium text-slate-200 border border-white/[0.08] shadow-2xl opacity-0 transition-all duration-200 group-hover:opacity-100 whitespace-nowrap">
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 rounded bg-[#090d16] px-2 py-1 text-xs font-medium text-slate-200 border border-white/[0.08] shadow-2xl opacity-0 transition-all duration-200 group-hover:opacity-100 whitespace-nowrap">
                   {user.username}
                 </div>
               </div>
             ))}
 
             {excessCount > 0 && (
-              <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 ring-2 ring-[#0c0f1d] text-[9px] font-bold text-slate-300">
+              <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 ring-2 ring-[#0c0f1d] text-xs font-bold text-slate-300">
                 +{excessCount}
               </div>
             )}

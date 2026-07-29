@@ -68,13 +68,13 @@ export default function Register({ onRegisterSuccess }) {
           <h2 className="text-lg font-bold tracking-tight text-white">
             Create Account
           </h2>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-sm text-slate-500">
             Sign up to build together in synchronized editor workspaces.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded border border-rose-900/35 bg-rose-950/20 px-3 py-2 text-[11px] text-rose-400">
+          <div className="mb-4 flex items-center gap-2 rounded border border-rose-900/35 bg-rose-950/20 px-3 py-2 text-sm text-rose-400">
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -82,7 +82,7 @@ export default function Register({ onRegisterSuccess }) {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
+            <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">
               Username
             </label>
             <div className="relative">
@@ -92,14 +92,14 @@ export default function Register({ onRegisterSuccess }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
                 placeholder="developer101"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
+            <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">
               Email Address
             </label>
             <div className="relative">
@@ -109,14 +109,14 @@ export default function Register({ onRegisterSuccess }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="developer@studio.com"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
+            <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">
               Password
             </label>
             <div className="relative">
@@ -126,14 +126,14 @@ export default function Register({ onRegisterSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">
+            <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-1">
               Confirm Password
             </label>
             <div className="relative">
@@ -143,7 +143,7 @@ export default function Register({ onRegisterSuccess }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-[11px] text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -152,14 +152,14 @@ export default function Register({ onRegisterSuccess }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 flex items-center justify-center gap-2 rounded bg-white hover:opacity-90 py-2 text-[11px] font-semibold text-slate-950 transition shadow cursor-pointer"
+            className="w-full mt-2 flex items-center justify-center gap-2 rounded bg-white hover:opacity-90 py-2 text-sm font-semibold text-slate-950 transition shadow cursor-pointer"
           >
             <UserPlus className="h-3.5 w-3.5" />
             <span>{loading ? "Creating Account..." : "Create Account"}</span>
           </button>
         </form>
 
-        <p className="text-center text-[11px] text-slate-550 mt-5">
+        <p className="text-center text-sm text-slate-550 mt-5">
           Already have an account?{" "}
           <Link to="/login" className="font-semibold text-slate-350 hover:text-slate-200 transition underline">
             Sign in here
