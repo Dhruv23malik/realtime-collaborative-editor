@@ -13,7 +13,11 @@ const runRoutes = require("./routes/run");
 
 const app = express();
 
-const corsOriginCheck = "*";
+const corsOriginCheck = (origin, callback) => {
+  // Always allow the request's origin by reflecting it back,
+  // which bypasses CORS issues while satisfying the credentials requirement.
+  callback(null, true);
+};
 
 app.use(
   cors({
