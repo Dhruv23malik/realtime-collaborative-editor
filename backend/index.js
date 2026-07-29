@@ -110,6 +110,13 @@ io.on("connection", (socket) => {
     roomPresence.users.set(socket.id, clientUser);
 
     try {
+      // Fast-fail if MongoDB is not connected (e.g. missing MONGODB_URI on Render)
+      const mongoose = require("mongoose");
+      if (mongoose.connection.readyState !== 1) {
+        socket.emit("error-message", "Database is not connected. Please check MONGODB_URI on Render.");
+        return;
+      }
+
       // 1. Fetch or create Room record from MongoDB
       let room = await Room.findOne({ roomId });
       if (!room) {
