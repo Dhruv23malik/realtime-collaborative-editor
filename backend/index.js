@@ -13,18 +13,7 @@ const runRoutes = require("./routes/run");
 
 const app = express();
 
-const corsOriginCheck = (origin, callback) => {
-  if (!origin) return callback(null, true);
-  const isLocalhost = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
-  const isVercel = origin.endsWith(".vercel.app");
-  const isCustomOrigin = process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN;
-
-  if (isLocalhost || isVercel || isCustomOrigin) {
-    callback(null, true);
-  } else {
-    callback(new Error("Not allowed by CORS"));
-  }
-};
+const corsOriginCheck = "*";
 
 app.use(
   cors({
