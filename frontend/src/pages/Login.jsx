@@ -3,7 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:3001"
+    : "https://collabcode-backend.onrender.com");
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -23,7 +26,7 @@ export default function Login({ onLoginSuccess }) {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -49,7 +52,7 @@ export default function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/google`, {
+      const res = await fetch(`${BASE_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: credentialResponse.credential }),

@@ -42,7 +42,21 @@ import {
   LogIn
 } from "lucide-react";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+const getUUID = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
+const BASE_URL = import.meta.env.VITE_SOCKET_URL || 
+  (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:3001"
+    : "https://collabcode-backend.onrender.com");
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "mock-google-client-id.apps.googleusercontent.com";
 
 const LANGUAGE_DETAILS = {
@@ -101,24 +115,30 @@ function RoomApp({ currentUser, onLogout }) {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
+  // Extract stable primitives so the effect only re-runs when the actual
+  // user identity changes, not on every object reference change.
+  const currentUserId = currentUser?.id ?? null;
+  const currentUsername = currentUser?.username ?? null;
+  const currentAvatar = currentUser?.avatar ?? null;
+
   useEffect(() => {
     if (!roomId) {
-      const randomRoom = crypto.randomUUID().slice(0, 8);
+      const randomRoom = getUUID().slice(0, 8);
       navigate(`/editor/${randomRoom}`, { replace: true });
       return;
     }
 
     setLoading(true);
-    const s = io(SOCKET_URL);
+    const s = io(BASE_URL);
     setSocket(s);
 
     // Emits authenticated participant info
     s.emit("join-room", {
       roomId,
-      user: currentUser ? {
-        userId: currentUser.id,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
+      user: currentUserId ? {
+        userId: currentUserId,
+        username: currentUsername,
+        avatar: currentAvatar,
       } : null,
     });
 
@@ -174,7 +194,7 @@ function RoomApp({ currentUser, onLogout }) {
       s.off("error-message");
       s.disconnect();
     };
-  }, [roomId, currentUser, navigate]);
+  }, [roomId, currentUserId, currentUsername, currentAvatar, navigate]);
 
   // Scoped active file selectors
   const activeFile = useMemo(() => {
@@ -335,7 +355,7 @@ function RoomApp({ currentUser, onLogout }) {
     setExecError("");
 
     try {
-      const res = await fetch(`${SOCKET_URL}/api/run`, {
+      const res = await fetch(`${BASE_URL}/api/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1113,7 +1133,7 @@ export default function App() {
         return;
       }
       try {
-        const res = await fetch(`${SOCKET_URL}/api/auth/me`, {
+        const res = await fetch(`${BASE_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -1151,7 +1171,7 @@ export default function App() {
         <Route path="/editor/:roomId" element={<RoomApp currentUser={currentUser} onLogout={handleLogout} />} />
         <Route
           path="*"
-          element={<Navigate to={`/editor/${crypto.randomUUID().slice(0, 8)}`} replace />}
+          element={<Navigate to={`/editor/${getUUID().slice(0, 8)}`} replace />}
         />
       </Routes>
     </GoogleOAuthProvider>

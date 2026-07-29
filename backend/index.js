@@ -12,9 +12,23 @@ const authRoutes = require("./routes/auth");
 const runRoutes = require("./routes/run");
 
 const app = express();
+
+const corsOriginCheck = (origin, callback) => {
+  if (!origin) return callback(null, true);
+  const isLocalhost = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
+  const isVercel = origin.endsWith(".vercel.app");
+  const isCustomOrigin = process.env.CORS_ORIGIN && origin === process.env.CORS_ORIGIN;
+
+  if (isLocalhost || isVercel || isCustomOrigin) {
+    callback(null, true);
+  } else {
+    callback(new Error("Not allowed by CORS"));
+  }
+};
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: corsOriginCheck,
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -33,7 +47,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: corsOriginCheck,
     methods: ["GET", "POST"],
     credentials: true,
   },

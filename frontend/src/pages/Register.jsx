@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, UserPlus, AlertCircle } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:3001"
+    : "https://collabcode-backend.onrender.com");
 
 export default function Register({ onRegisterSuccess }) {
   const [username, setUsername] = useState("");
@@ -34,7 +37,7 @@ export default function Register({ onRegisterSuccess }) {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
+      const res = await fetch(`${BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
