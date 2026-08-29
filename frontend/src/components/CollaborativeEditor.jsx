@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Editor, { loader } from "@monaco-editor/react";
 
 const COLORS = [
-  "#22d3ee", // cyan
+  "#22d3ee", // orange
   "#e879f9", // fuchsia
   "#fbbf24", // amber
   "#34d499", // emerald
@@ -28,7 +28,9 @@ export default function CollaborativeEditor({
   code: initialCode,
   language,
   username = "Guest",
-  editorSettings = { theme: "vs-dark", fontSize: 13, tabSize: 2 },
+  editorSettings = { theme: "vs-dark", fontSize: 15, tabSize: 2 },
+  onApplyCode,
+  onSelectionChange,
 }) {
   const [code, setCode] = useState(initialCode);
   const isRemoteUpdate = useRef(false);
@@ -221,8 +223,20 @@ export default function CollaborativeEditor({
         selection,
         color: userColor,
       });
+      if (onSelectionChange) onSelectionChange(selection);
     });
   };
+
+  // ── Apply-to-Editor: programmatically replace file content from AI suggestions ──
+  useEffect(() => {
+    if (!onApplyCode) return;
+    // Register the apply function so parent can call it
+    onApplyCode.current = (newCode) => {
+      if (!editorRef.current || !socket) return;
+      editorRef.current.setValue(newCode);
+      socket.emit("code-change", { roomId, fileId, code: newCode });
+    };
+  }, [onApplyCode, socket, roomId, fileId]);
 
   return (
     <div className="h-full w-full bg-[#0b1020]">

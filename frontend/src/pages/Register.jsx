@@ -59,8 +59,8 @@ export default function Register({ onRegisterSuccess }) {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#09090b] text-slate-200 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 select-none">
-      <div className="relative text-left z-10 w-full max-w-sm rounded border border-[#27272a] bg-[#18181b] p-6 shadow-2xl animate-rise">
+    <div className="relative min-h-screen bg-[#0a0a0a] text-slate-200 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 select-none">
+      <div className="relative text-left z-10 w-full max-w-sm rounded border border-[#27272a] bg-[#171717] p-6 shadow-2xl animate-rise">
         <div className="text-center mb-6">
           <div className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-xs font-bold text-slate-200 mb-3">
             CE

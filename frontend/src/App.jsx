@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, Navigate, useParams, useNavigate, Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -63,7 +63,7 @@ const LANGUAGE_DETAILS = {
   javascript: { accent: "from-amber-400 via-orange-500 to-rose-500", label: "JavaScript" },
   python: { accent: "from-sky-400 via-blue-500 to-emerald-500", label: "Python" },
   html: { accent: "from-orange-400 via-red-500 to-pink-500", label: "HTML" },
-  css: { accent: "from-cyan-400 via-blue-500 to-indigo-500", label: "CSS" },
+  css: { accent: "from-orange-400 via-blue-500 to-indigo-500", label: "CSS" },
   json: { accent: "from-lime-400 via-emerald-500 to-teal-500", label: "JSON" },
   cpp: { accent: "from-violet-400 via-purple-500 to-indigo-500", label: "C++" },
 };
@@ -79,7 +79,12 @@ function RoomApp({ currentUser, onLogout }) {
   // Dynamic File System State
   const [files, setFiles] = useState([]);
   const [activeFileId, setActiveFileId] = useState(null);
+  const [activeSelection, setActiveSelection] = useState(null);
   const [expandedFolders, setExpandedFolders] = useState({});
+
+  useEffect(() => {
+    setActiveSelection(null);
+  }, [activeFileId]);
   
   // File Creation States
   const [creatingInId, setCreatingInId] = useState(null); // Parent folder ID
@@ -108,7 +113,10 @@ function RoomApp({ currentUser, onLogout }) {
   const [execError, setExecError] = useState("");
 
   // Right sidebar tab state: "chat" or "ai"
-  const [rightPanelTab, setRightPanelTab] = useState("chat");
+  const [rightPanelTab, setRightPanelTab] = useState("ai");
+
+  // Apply-to-Editor ref: CollaborativeEditor registers a setter here
+  const applyCodeRef = useRef(null);
 
   const displayName = currentUser ? currentUser.username : "Guest";
 
@@ -413,7 +421,7 @@ function RoomApp({ currentUser, onLogout }) {
         {creatingType === "folder" ? (
           <Folder className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
         ) : (
-          <FileText className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
+          <FileText className="h-3.5 w-3.5 text-orange-400 flex-shrink-0" />
         )}
         <input
           type="text"
@@ -426,7 +434,7 @@ function RoomApp({ currentUser, onLogout }) {
           }}
           onBlur={() => commitCreation(parentId)}
           autoFocus
-          className="rounded border border-cyan-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32 focus:border-cyan-400"
+          className="rounded border border-orange-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32 focus:border-orange-400"
         />
       </div>
     );
@@ -456,7 +464,7 @@ function RoomApp({ currentUser, onLogout }) {
             style={{ paddingLeft: `${depth * 14 + 8}px` }}
             className={`group flex items-center justify-between py-1 px-2 rounded-lg transition cursor-pointer my-0.5 text-xs ${
               activeFileId === item._id && !item.isFolder
-                ? "bg-cyan-500/10 text-cyan-200 border border-cyan-500/15"
+                ? "bg-orange-500/10 text-orange-200 border border-orange-500/15"
                 : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
             }`}
             draggable
@@ -502,7 +510,7 @@ function RoomApp({ currentUser, onLogout }) {
                   <Folder className="h-4.5 w-4.5 text-amber-500/90 flex-shrink-0" />
                 )
               ) : (
-                <FileText className="h-4 w-4 text-cyan-400/90 flex-shrink-0" />
+                <FileText className="h-4 w-4 text-orange-400/90 flex-shrink-0" />
               )}
 
               {isRenaming ? (
@@ -516,7 +524,7 @@ function RoomApp({ currentUser, onLogout }) {
                   }}
                   onBlur={() => commitRename(item._id)}
                   autoFocus
-                  className="rounded border border-cyan-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32"
+                  className="rounded border border-orange-500/30 bg-slate-900 px-2 py-0.5 text-xs text-white outline-none w-32"
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
@@ -531,7 +539,7 @@ function RoomApp({ currentUser, onLogout }) {
                   <button
                     type="button"
                     title="New File"
-                    className="p-0.5 rounded text-slate-500 hover:text-cyan-400 hover:bg-white/5 transition cursor-pointer"
+                    className="p-0.5 rounded text-slate-500 hover:text-orange-400 hover:bg-white/5 transition cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       startCreation(item._id, "file");
@@ -555,7 +563,7 @@ function RoomApp({ currentUser, onLogout }) {
               <button
                 type="button"
                 title="Rename"
-                className="p-0.5 rounded text-slate-500 hover:text-cyan-400 hover:bg-white/5 transition cursor-pointer"
+                className="p-0.5 rounded text-slate-500 hover:text-orange-400 hover:bg-white/5 transition cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setRenamingFileId(item._id);
@@ -594,17 +602,17 @@ function RoomApp({ currentUser, onLogout }) {
 
   if (loading) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-[#05070f] text-white flex items-center justify-center">
+      <div className="relative min-h-screen overflow-hidden bg-[#000000] text-white flex items-center justify-center">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="absolute left-[-12rem] top-[-10rem] h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" />
           <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-500/5 blur-3xl" />
           <div className="mesh-overlay absolute inset-0 opacity-20" />
         </div>
         
-        <div className="relative text-center z-10 glass-panel p-8 rounded-2xl border border-white/[0.08] bg-[#0c0f1d]/50 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
+        <div className="relative text-center z-10 glass-panel p-8 rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/50 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
           <div className="relative flex items-center justify-center mx-auto h-12 w-12 mb-5">
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-500/10 animate-pulse" />
-            <div className="h-8 w-8 rounded-full border-2 border-t-cyan-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-orange-500/10 animate-pulse" />
+            <div className="h-8 w-8 rounded-full border-2 border-t-orange-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
           </div>
           <h3 className="text-base font-semibold text-white tracking-wide">Connecting Workspace</h3>
           <p className="mt-2 text-xs text-slate-450">Loading synchronized directories & session state...</p>
@@ -614,17 +622,17 @@ function RoomApp({ currentUser, onLogout }) {
   }
 
   return (
-    <div className="relative min-h-screen h-screen flex flex-col overflow-hidden bg-[#09090b] text-slate-100">
+    <div className="relative min-h-screen h-screen flex flex-col overflow-hidden bg-[#0a0a0a] text-slate-100">
       {/* Slim Top Navigation Bar */}
-      <header className="relative z-40 flex h-12 items-center justify-between border-b border-[#27272a] bg-[#18181b] px-4 select-none flex-shrink-0">
+      <header className="relative z-40 flex h-12 items-center justify-between border-b border-[#27272a] bg-[#171717] px-4 select-none flex-shrink-0">
         <div className="flex items-center gap-2.5">
           {/* Logo badge */}
-          <div className="flex h-7 w-7 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-xs font-bold text-slate-200">
+          <div className="flex h-7 w-7 items-center justify-center rounded border border-orange-600 bg-orange-600/10 text-xs font-bold text-orange-500">
             CE
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-slate-200 tracking-wide">Collaborative Editor</span>
+              <span className="text-sm font-semibold text-slate-200 tracking-wide">Collaborative <span className="text-orange-500">Editor</span></span>
             </div>
           </div>
         </div>
@@ -642,7 +650,7 @@ function RoomApp({ currentUser, onLogout }) {
             className={`flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-medium transition-all duration-200 cursor-pointer ${
               copied
                 ? "border-emerald-800/40 bg-emerald-950/30 text-emerald-400"
-                : "border-[#27272a] bg-[#27272a]/30 text-slate-300 hover:bg-[#27272a]/60"
+                : "border-orange-600/50 bg-orange-600/10 text-orange-500 hover:bg-orange-600/20"
             }`}
           >
             {copied ? (
@@ -713,9 +721,9 @@ function RoomApp({ currentUser, onLogout }) {
             <div className="flex items-center gap-2">
               <Link to="/profile" className="group flex items-center gap-2 cursor-pointer">
                 {currentUser.avatar ? (
-                  <img src={currentUser.avatar} alt={currentUser.username} className="h-7 w-7 rounded-full border border-cyan-500/20 object-cover" />
+                  <img src={currentUser.avatar} alt={currentUser.username} className="h-7 w-7 rounded-full border border-orange-500/20 object-cover" />
                 ) : (
-                  <div className="h-7 w-7 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-xs font-semibold text-cyan-400 flex items-center justify-center uppercase">
+                  <div className="h-7 w-7 rounded-full bg-orange-500/20 border border-orange-500/40 text-xs font-semibold text-orange-400 flex items-center justify-center uppercase">
                     {currentUser.username.slice(0, 2)}
                   </div>
                 )}
@@ -737,7 +745,7 @@ function RoomApp({ currentUser, onLogout }) {
                 <LogIn className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Sign In</span>
               </Link>
-              <Link to="/register" className="rounded-lg bg-white px-3 py-1.5 font-semibold text-[#05070f] transition hover:opacity-90 shadow-md flex items-center gap-1">
+              <Link to="/register" className="rounded-lg bg-orange-500 px-3 py-1.5 font-semibold text-[#000000] transition hover:opacity-90 shadow-md flex items-center gap-1 hover:bg-orange-600">
                 <UserPlus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Sign Up</span>
               </Link>
@@ -751,18 +759,36 @@ function RoomApp({ currentUser, onLogout }) {
         
         {/* Left Sidebar: Workspace Explorer */}
         <aside
-          className={`w-56 bg-[#18181b] border-r border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 select-none ${
+          className={`w-56 bg-[#171717] border-r border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 select-none ${
             filesOpen ? "flex" : "hidden"
           }`}
         >
           {/* Header */}
           <div className="border-b border-[#27272a] px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Explorer</p>
-              <h2 className="text-sm font-semibold text-white mt-0.5">Workspace Files</h2>
+              <h2 className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Explorer</h2>
             </div>
             
             <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                title="Open File"
+                className="rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 p-1 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                onClick={() => document.getElementById("file-upload-input")?.click()}
+              >
+                <Upload className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                title="Open Folder"
+                className="rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 p-1 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                onClick={() => document.getElementById("folder-upload-input")?.click()}
+              >
+                <FolderOpen className="h-3.5 w-3.5" />
+              </button>
+              
+              <div className="w-px h-4 bg-[#27272a] mx-0.5"></div>
+
               <button
                 type="button"
                 title="New File at Root"
@@ -782,54 +808,35 @@ function RoomApp({ currentUser, onLogout }) {
             </div>
           </div>
 
+          {/* Hidden File Inputs */}
+          <input type="file" id="file-upload-input" className="hidden" onChange={handleFileUpload} />
+          <input type="file" id="folder-upload-input" className="hidden" webkitdirectory="true" directory="true" onChange={handleFileUpload} />
+
           {/* Explorer Scroll Area */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 custom-scrollbar">
             
-            {/* Quick Actions (Import / Export) */}
-            <div className="flex gap-1.5">
-              <button
-                onClick={() => document.getElementById("file-upload-input").click()}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-xs font-bold text-slate-300 transition cursor-pointer"
-              >
-                <Upload className="h-3 w-3 text-slate-400" />
-                <span>Import</span>
-              </button>
-              <input
-                type="file"
-                id="file-upload-input"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              
-              <button
-                onClick={exportWorkspaceAsZip}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded border border-[#27272a] bg-transparent hover:bg-[#27272a]/50 py-1 text-xs font-bold text-slate-300 transition cursor-pointer"
-              >
-                <Download className="h-3 w-3 text-slate-400" />
-                <span>Export ZIP</span>
-              </button>
-            </div>
+
 
             {/* Quick search input */}
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-3 w-3 text-slate-500" />
+              <Search className="absolute left-2 top-2 h-3 w-3 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search filenames..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded border border-[#27272a] bg-black/20 px-2 py-1 pl-7 text-xs text-white placeholder:text-zinc-650 outline-none focus:border-zinc-700"
+                className="w-full rounded-[4px] border border-[#27272a] bg-black/20 px-2 py-1 pl-7 text-[11px] text-slate-200 placeholder:text-slate-500 outline-none focus:border-orange-500/50 transition-colors"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-2 top-2.5 text-slate-500 hover:text-slate-300">
+                <button onClick={() => setSearchQuery("")} className="absolute right-2 top-2 text-slate-500 hover:text-slate-300">
                   <X className="h-3 w-3" />
                 </button>
               )}
             </div>
 
             {/* File List / Tree hierarchy */}
-            <div className="flex flex-col">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">Files</span>
+            <div className="flex flex-col mt-2">
+              <span className="text-[10px] font-semibold text-slate-500 mb-1.5 ml-1">FILES</span>
               
               <div
                 className="space-y-0.5 min-h-[180px]"
@@ -879,10 +886,10 @@ function RoomApp({ currentUser, onLogout }) {
         </aside>
 
         {/* Central Space: Code Editor and Console panel */}
-        <main className="flex-1 min-w-0 flex flex-col h-full bg-[#09090b] relative">
+        <main className="flex-1 min-w-0 flex flex-col h-full bg-[#0a0a0a] relative">
           
           {/* Breadcrumb / Editor Tab status bar */}
-          <div className="h-9 border-b border-[#27272a] bg-[#18181b]/80 flex items-center justify-between px-4 select-none flex-shrink-0">
+          <div className="h-9 border-b border-[#27272a] bg-[#171717]/80 flex items-center justify-between px-4 select-none flex-shrink-0">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
               <span className="text-xs tracking-wide text-slate-500">active file:</span>
               <span className="text-slate-300 font-mono">
@@ -928,10 +935,12 @@ function RoomApp({ currentUser, onLogout }) {
                   language={activeLanguage}
                   username={displayName}
                   editorSettings={editorSettings}
+                  onApplyCode={applyCodeRef}
+                  onSelectionChange={(selection) => setActiveSelection(selection)}
                 />
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-slate-500 text-sm gap-3 max-w-sm mx-auto text-center px-4">
-                  <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-xl">
+                  <div className="p-2.5 bg-[#171717] border border-[#27272a] rounded-xl">
                     <FolderTree className="h-6 w-6 text-slate-400" />
                   </div>
                   <div>
@@ -944,59 +953,83 @@ function RoomApp({ currentUser, onLogout }) {
 
             {/* Bottom Drawer Console Pane */}
             {consoleOpen && (
-              <div className="h-60 border-t border-[#27272a] bg-[#18181b] flex flex-col min-w-0 flex-shrink-0 text-left z-30">
+              <div className="h-72 border-t border-[#27272a] bg-[#171717] flex min-w-0 flex-shrink-0 text-left z-30">
                 
-                {/* Pane Tabs Header */}
-                <div className="flex items-center justify-between border-b border-[#27272a] px-4 py-1 flex-shrink-0 bg-[#18181b] select-none">
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setConsoleTab("output")}
-                      className={`text-xs font-semibold py-0.5 px-1.5 rounded transition-all ${
-                        consoleTab === "output" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
-                      }`}
-                    >
-                      Console
-                    </button>
-                    {(activeLanguage === "html" || activeLanguage === "css") && (
+                {/* Left Side: Terminal / Problems */}
+                <div className="flex-1 flex flex-col min-w-0 border-r border-[#27272a]">
+                  {/* Pane Tabs Header */}
+                  <div className="flex items-center justify-between border-b border-[#27272a] px-4 py-1 flex-shrink-0 bg-[#171717] select-none">
+                    <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => setConsoleTab("preview")}
-                        className={`text-xs font-semibold py-0.5 px-1.5 rounded transition-all ${
-                          consoleTab === "preview" ? "bg-[#27272a] text-white" : "text-slate-400 hover:text-slate-200"
+                        onClick={() => setConsoleTab("output")}
+                        className={`text-xs font-bold tracking-wider uppercase py-1 px-1.5 rounded-none transition-all ${
+                          consoleTab === "output" ? "text-orange-500 border-b-2 border-orange-500" : "text-slate-400 hover:text-slate-200"
                         }`}
                       >
-                        Web Live Preview
+                        Terminal
                       </button>
-                    )}
+                      <button
+                        onClick={() => setConsoleTab("problems")}
+                        className={`text-xs font-bold tracking-wider uppercase py-1 px-1.5 rounded-none transition-all ${
+                          consoleTab === "problems" ? "text-orange-500 border-b-2 border-orange-500" : "text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        Problems
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Add Terminal"><Plus className="h-3.5 w-3.5" /></button>
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Copy"><Copy className="h-3.5 w-3.5" /></button>
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Clear"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button
+                        onClick={() => setConsoleOpen(false)}
+                        className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer ml-2"
+                        title="Close Panel"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  
-                  <button
-                    onClick={() => setConsoleOpen(false)}
-                    className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+
+                  {/* Content Stream */}
+                  <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-black/40">
+                    {consoleTab === "output" ? (
+                      <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap select-text text-left">
+                        {execRunning ? (
+                          <span className="text-slate-400 animate-pulse font-medium">Compiling & executing code...</span>
+                        ) : execError ? (
+                          <span className="console-stderr block text-rose-400">{execError}</span>
+                        ) : (
+                          <span className="console-stdout block">{execOutput || "> Ready..."}</span>
+                        )}
+                      </pre>
+                    ) : consoleTab === "problems" ? (
+                      <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                        <p className="text-sm">No problems have been detected in the workspace.</p>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
-                {/* Content Stream */}
-                <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-black/40">
-                  {consoleTab === "output" ? (
-                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap select-text text-left">
-                      {execRunning ? (
-                        <span className="text-slate-400 animate-pulse font-medium">Compiling & executing code...</span>
-                      ) : execError ? (
-                        <span className="console-stderr block">{execError}</span>
-                      ) : (
-                        <span className="console-stdout block">{execOutput}</span>
-                      )}
-                    </pre>
-                  ) : (
-                    <iframe
-                      title="HTML Live Preview"
-                      sandbox="allow-scripts"
-                      srcDoc={getCombinedHtmlPreview()}
-                      className="w-full h-full border-none bg-white rounded shadow-inner"
+                {/* Right Side: Chat Panel */}
+                <div className="w-[340px] flex flex-col flex-shrink-0 bg-[#0a0a0a]">
+                  <div className="flex items-center border-b border-[#27272a] px-4 py-1 flex-shrink-0 bg-[#171717] select-none h-[33px]">
+                    <span className="text-xs font-bold tracking-wider uppercase text-orange-500">
+                      Chat
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <ChatPanel
+                      socket={socket}
+                      roomId={roomId}
+                      currentUser={currentUser}
+                      users={users}
+                      activeFileName={activeFile ? activeFile.name : ""}
+                      activeCode={activeCode}
+                      activeLanguage={activeLanguage}
                     />
-                  )}
+                  </div>
                 </div>
               </div>
             )}
@@ -1005,26 +1038,24 @@ function RoomApp({ currentUser, onLogout }) {
 
         {/* Right Sidebar: Chat Panels & AI Assistant */}
         {showChat && (
-          <aside className="w-72 bg-[#18181b] border-l border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 flex select-none">
+          <aside className="w-72 bg-[#171717] border-l border-[#27272a] flex-col flex-shrink-0 transition-all duration-200 flex select-none">
             
             {/* Right Pane Tab Buttons */}
-            <div className="flex border-b border-[#27272a] flex-shrink-0 bg-black/10">
+            <div className="flex flex-shrink-0 bg-[#0a0a0a] border-b border-[#27272a]">
               <button
                 onClick={() => setRightPanelTab("chat")}
-                className={`flex-1 py-1.5 text-xs font-bold tracking-wider uppercase border-r border-[#27272a] flex items-center justify-center gap-1 transition cursor-pointer ${
-                  rightPanelTab === "chat" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
+                className={`flex-1 py-2 text-[11px] font-medium border-r border-[#27272a] flex items-center justify-center transition-colors cursor-pointer ${
+                  rightPanelTab === "chat" ? "bg-[#171717] text-white border-t-[2px] border-t-orange-500" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border-t-[2px] border-t-transparent"
                 }`}
               >
-                <MessageSquare className="h-3 w-3 text-slate-400" />
                 <span>Discussion</span>
               </button>
               <button
                 onClick={() => setRightPanelTab("ai")}
-                className={`flex-1 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition cursor-pointer ${
-                  rightPanelTab === "ai" ? "bg-transparent text-white border-b-2 border-slate-400" : "text-slate-400 hover:text-slate-200"
+                className={`flex-1 py-2 text-[11px] font-medium flex items-center justify-center transition-colors cursor-pointer ${
+                  rightPanelTab === "ai" ? "bg-[#171717] text-white border-t-[2px] border-t-orange-500" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border-t-[2px] border-t-transparent"
                 }`}
               >
-                <Bot className="h-3 w-3 text-slate-400" />
                 <span>AI Assistant</span>
               </button>
             </div>
@@ -1032,20 +1063,24 @@ function RoomApp({ currentUser, onLogout }) {
             {/* Dynamic Content Panel view */}
             <div className="flex-1 overflow-hidden">
               {rightPanelTab === "chat" ? (
-                <ChatPanel
-                  socket={socket}
-                  roomId={roomId}
-                  currentUser={currentUser}
-                  users={users}
-                  activeFileName={activeFile ? activeFile.name : ""}
-                  activeCode={activeCode}
-                  activeLanguage={activeLanguage}
-                />
+                <div className="flex flex-col items-center justify-center h-full text-slate-500 p-4 text-center">
+                  <MessageSquare className="h-8 w-8 mb-3 opacity-50" />
+                  <h4 className="text-sm font-semibold text-slate-300 mb-1">Discussions & DMs</h4>
+                  <p className="text-xs">Direct messages and thread discussions will appear here.</p>
+                </div>
               ) : (
                 <AIAssistant
                   activeFileName={activeFile ? activeFile.name : ""}
                   activeCode={activeCode}
                   activeLanguage={activeLanguage}
+                  activeSelection={activeSelection}
+                  onApply={(code) => {
+                    if (applyCodeRef.current) {
+                      applyCodeRef.current(code);
+                    } else {
+                      alert("Please select a file in the editor first to apply the code.");
+                    }
+                  }}
                 />
               )}
             </div>
@@ -1056,7 +1091,7 @@ function RoomApp({ currentUser, onLogout }) {
       {/* Editor Settings Configuration Modal */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-          <div className="relative w-full max-w-sm rounded-xl border border-[#27272a] bg-[#18181b] p-5 shadow-2xl animate-rise text-left">
+          <div className="relative w-full max-w-sm rounded-xl border border-[#27272a] bg-[#171717] p-5 shadow-2xl animate-rise text-left">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-3 mb-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                 <Settings className="h-4 w-4 text-slate-400" />

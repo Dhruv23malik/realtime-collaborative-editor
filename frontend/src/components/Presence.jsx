@@ -26,7 +26,7 @@ export default function Presence({ users = [] }) {
             {visibleUsers.map((user, idx) => (
               <div
                 key={`${user.userId || idx}-${idx}`}
-                className="group relative inline-block h-6 w-6 rounded-full ring-2 ring-[#0c0f1d] bg-gradient-to-br from-cyan-400 to-indigo-600 cursor-help"
+                className="group relative inline-block h-6 w-6 rounded-full ring-2 ring-[#0a0a0a] bg-gradient-to-br from-orange-400 to-indigo-600 cursor-help"
               >
                 {user.avatar ? (
                   <img
@@ -47,7 +47,7 @@ export default function Presence({ users = [] }) {
             ))}
 
             {excessCount > 0 && (
-              <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 ring-2 ring-[#0c0f1d] text-xs font-bold text-slate-300">
+              <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 ring-2 ring-[#0a0a0a] text-xs font-bold text-slate-300">
                 +{excessCount}
               </div>
             )}

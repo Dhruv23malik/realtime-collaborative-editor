@@ -5,8 +5,8 @@ import { User, Calendar, Mail, Shield, ArrowLeft } from "lucide-react";
 export default function Profile({ currentUser }) {
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#09090b] text-slate-300 flex items-center justify-center select-none">
-        <div className="text-center bg-[#18181b] border border-[#27272a] p-6 rounded max-w-sm w-full mx-4 shadow-xl">
+      <div className="min-h-screen bg-[#0a0a0a] text-slate-300 flex items-center justify-center select-none">
+        <div className="text-center bg-[#171717] border border-[#27272a] p-6 rounded max-w-sm w-full mx-4 shadow-xl">
           <div className="flex h-9 w-9 items-center justify-center rounded border border-[#27272a] bg-[#27272a]/40 text-slate-450 mx-auto mb-4">
             <User className="h-4.5 w-4.5" />
           </div>
@@ -26,8 +26,8 @@ export default function Profile({ currentUser }) {
   });
 
   return (
-    <div className="relative min-h-screen bg-[#09090b] text-slate-200 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 select-none">
-      <div className="relative text-left z-10 w-full max-w-sm rounded border border-[#27272a] bg-[#18181b] p-6 shadow-2xl animate-rise text-center">
+    <div className="relative min-h-screen bg-[#0a0a0a] text-slate-200 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 select-none">
+      <div className="relative text-left z-10 w-full max-w-sm rounded border border-[#27272a] bg-[#171717] p-6 shadow-2xl animate-rise text-center">
         
         {/* Top bar back button */}
         <div className="absolute top-5 left-5">
