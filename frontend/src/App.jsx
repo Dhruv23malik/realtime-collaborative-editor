@@ -75,6 +75,11 @@ function RoomApp({ currentUser, onLogout }) {
   const [filesOpen, setFilesOpen] = useState(true);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  // FIX: previously, if the backend was unreachable (Render asleep/down) or
+  // the DB was down, this stayed `true` forever — an endless
+  // "Connecting Workspace" spinner with no error and no retry. Now a 20s
+  // timeout and any socket error surface a proper error screen instead.
+  const [connectionError, setConnectionError] = useState(null);
 
   // Dynamic File System State
   const [files, setFiles] = useState([]);
@@ -137,20 +142,37 @@ function RoomApp({ currentUser, onLogout }) {
     }
 
     setLoading(true);
+    setConnectionError(null);
     const s = io(BASE_URL);
     setSocket(s);
 
-    // Emits authenticated participant info
-    s.emit("join-room", {
-      roomId,
-      user: currentUserId ? {
-        userId: currentUserId,
-        username: currentUsername,
-        avatar: currentAvatar,
-      } : null,
-    });
+    // FIX: join-room used to be emitted once, immediately — if the socket
+    // dropped and reconnected, the client never rejoined the room and
+    // presence/code sync silently stopped. Emit on every (re)connect.
+    const emitJoinRoom = () => {
+      s.emit("join-room", {
+        roomId,
+        user: currentUserId ? {
+          userId: currentUserId,
+          username: currentUsername,
+          avatar: currentAvatar,
+        } : null,
+      });
+    };
+    s.on("connect", emitJoinRoom);
+
+    // Stop the endless spinner if the backend never answers (Render free
+    // tier asleep, backend down, or DB outage): show an error + Retry.
+    const loadTimer = setTimeout(() => {
+      setLoading(false);
+      setConnectionError(
+        "Could not reach the collaboration server. It may be waking up (Render free tier sleeps when idle) or down — please retry in a minute."
+      );
+    }, 20000);
 
     s.on("file-tree", (tree) => {
+      clearTimeout(loadTimer);
+      setConnectionError(null);
       setFiles(tree || []);
       setLoading(false);
 
@@ -190,10 +212,16 @@ function RoomApp({ currentUser, onLogout }) {
     });
 
     s.on("error-message", (msg) => {
+      // FIX: an error used to only alert while the loading spinner kept
+      // spinning underneath. Stop loading so the user can see the editor
+      // (temporary mode) or the error screen.
+      setLoading(false);
       alert(msg);
     });
 
     return () => {
+      clearTimeout(loadTimer);
+      s.off("connect", emitJoinRoom);
       s.off("file-tree");
       s.off("file-created");
       s.off("file-deleted");
@@ -298,23 +326,26 @@ function RoomApp({ currentUser, onLogout }) {
   };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    // FIX: this used to read only files[0], so "Open Folder" silently
+    // uploaded just the first file of the folder. Upload every file now.
+    const uploadedFiles = Array.from(e.target.files || []);
+    if (uploadedFiles.length === 0 || !socket) {
+      e.target.value = "";
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target.result;
-      const name = file.name;
-      if (socket) {
+    uploadedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
         socket.emit("file-create", {
-          name,
+          name: file.name,
           isFolder: false,
           parentId: null,
-          content,
+          content: event.target.result,
         });
-      }
-    };
-    reader.readAsText(file);
+      };
+      reader.readAsText(file);
+    });
     e.target.value = "";
   };
 
@@ -575,7 +606,7 @@ function RoomApp({ currentUser, onLogout }) {
               <button
                 type="button"
                 title="Delete"
-                className="p-0.5 rounded text-slate-500 hover:text-rose-450 hover:bg-white/5 transition cursor-pointer"
+                className="p-0.5 rounded text-slate-500 hover:text-rose-400 hover:bg-white/5 transition cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm(`Delete ${item.name}?`)) {
@@ -608,14 +639,32 @@ function RoomApp({ currentUser, onLogout }) {
           <div className="absolute right-[-10rem] top-20 h-72 w-72 rounded-full bg-fuchsia-500/5 blur-3xl" />
           <div className="mesh-overlay absolute inset-0 opacity-20" />
         </div>
-        
+
         <div className="relative text-center z-10 glass-panel p-8 rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/50 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
           <div className="relative flex items-center justify-center mx-auto h-12 w-12 mb-5">
             <div className="absolute inset-0 rounded-full border-2 border-orange-500/10 animate-pulse" />
             <div className="h-8 w-8 rounded-full border-2 border-t-orange-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
           </div>
           <h3 className="text-base font-semibold text-white tracking-wide">Connecting Workspace</h3>
-          <p className="mt-2 text-xs text-slate-450">Loading synchronized directories & session state...</p>
+          <p className="mt-2 text-xs text-slate-400">Loading synchronized directories &amp; session state...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (connectionError && files.length === 0) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#000000] text-white flex items-center justify-center">
+        <div className="relative text-center z-10 glass-panel p-8 rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/50 backdrop-blur-xl shadow-2xl animate-rise max-w-sm w-full mx-4">
+          <h3 className="text-base font-semibold text-white tracking-wide">Couldn&apos;t connect to the workspace</h3>
+          <p className="mt-2 text-xs text-slate-400 leading-relaxed">{connectionError}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-5 rounded bg-orange-500 px-4 py-2 text-xs font-semibold text-black transition hover:bg-orange-600 cursor-pointer"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -734,7 +783,7 @@ function RoomApp({ currentUser, onLogout }) {
               <button 
                 onClick={onLogout} 
                 title="Log Out"
-                className="p-1 text-slate-500 hover:text-rose-450 transition cursor-pointer bg-transparent"
+                className="p-1 text-slate-500 hover:text-rose-400 transition cursor-pointer bg-transparent"
               >
                 <LogOut className="h-4 w-4" />
               </button>
@@ -868,7 +917,7 @@ function RoomApp({ currentUser, onLogout }) {
                           <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                           <div className="min-w-0">
                             <p className="font-medium truncate">{f.name}</p>
-                            <p className="text-xs text-slate-550 truncate">{f.path}</p>
+                            <p className="text-xs text-slate-500 truncate">{f.path}</p>
                           </div>
                         </div>
                       ))
@@ -902,7 +951,7 @@ function RoomApp({ currentUser, onLogout }) {
                 <button
                   onClick={runCode}
                   disabled={execRunning}
-                  className="rounded bg-emerald-750 hover:bg-emerald-700 px-2 py-0.5 text-xs font-bold text-white flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40"
+                  className="rounded bg-emerald-700 hover:bg-emerald-700 px-2 py-0.5 text-xs font-bold text-white flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40"
                 >
                   <Play className="h-2.5 w-2.5 fill-current" />
                   <span>Run</span>
@@ -979,12 +1028,12 @@ function RoomApp({ currentUser, onLogout }) {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Add Terminal"><Plus className="h-3.5 w-3.5" /></button>
-                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Copy"><Copy className="h-3.5 w-3.5" /></button>
-                      <button className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer" title="Clear"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-300 transition cursor-pointer" title="Add Terminal"><Plus className="h-3.5 w-3.5" /></button>
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-300 transition cursor-pointer" title="Copy"><Copy className="h-3.5 w-3.5" /></button>
+                      <button className="p-1 rounded text-slate-500 hover:text-slate-300 transition cursor-pointer" title="Clear"><Trash2 className="h-3.5 w-3.5" /></button>
                       <button
                         onClick={() => setConsoleOpen(false)}
-                        className="p-1 rounded text-slate-500 hover:text-slate-350 transition cursor-pointer ml-2"
+                        className="p-1 rounded text-slate-500 hover:text-slate-300 transition cursor-pointer ml-2"
                         title="Close Panel"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -1097,7 +1146,7 @@ function RoomApp({ currentUser, onLogout }) {
                 <Settings className="h-4 w-4 text-slate-400" />
                 <span>Editor Setup</span>
               </h3>
-              <button onClick={() => setShowSettingsModal(false)} className="p-0.5 rounded text-slate-500 hover:text-slate-350 cursor-pointer">
+              <button onClick={() => setShowSettingsModal(false)} className="p-0.5 rounded text-slate-500 hover:text-slate-300 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>

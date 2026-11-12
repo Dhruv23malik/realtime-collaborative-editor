@@ -13,10 +13,34 @@ const runRoutes = require("./routes/run");
 
 const app = express();
 
+// FIX: previously this reflected ANY origin back with credentials: true,
+// so any website could make credentialed requests to the API on a logged-in
+// user's behalf. Now only trusted origins are allowed: the CORS_ORIGIN env
+// var (comma-separated, set on Render), the deployed Vercel frontend and its
+// preview deployments, and localhost for development. Requests with no
+// Origin header (curl, server-to-server, /health checks) are still allowed.
+const allowedOrigins = new Set(
+  (process.env.CORS_ORIGIN || "https://realtime-collaborative-editor-flame.vercel.app,http://localhost:5173,http://localhost:3000")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
 const corsOriginCheck = (origin, callback) => {
-  // Always allow the request's origin by reflecting it back,
-  // which bypasses CORS issues while satisfying the credentials requirement.
-  callback(null, true);
+  if (!origin) return callback(null, true);
+  try {
+    const url = new URL(origin);
+    const isLocalhost = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    const isVercelPreview =
+      url.hostname === "realtime-collaborative-editor-flame.vercel.app" ||
+      url.hostname.endsWith(".vercel.app");
+    if (allowedOrigins.has(origin) || isLocalhost || isVercelPreview) {
+      return callback(null, true);
+    }
+  } catch (_) {
+    // fall through to rejection below
+  }
+  callback(new Error(`CORS blocked origin: ${origin}`));
 };
 
 app.use(
@@ -29,8 +53,42 @@ app.use(
 app.use(express.json()); // Mount JSON body parser
 
 app.get("/health", (_req, res) => {
-  res.status(200).json({ ok: true });
+  const mongoose = require("mongoose");
+  res.status(200).json({
+    ok: true,
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
 });
+
+// In-memory fallback room state, used only while MongoDB is unavailable so
+// a visitor still gets an editor instead of an endless loading screen.
+// keyed by roomId -> { files: [...], language, messages: [] }
+const fallbackRooms = {};
+const fallbackWelcomeFile = (roomId) => ({
+  _id: `fallback-welcome-${roomId}`,
+  roomId,
+  name: "welcome.js",
+  path: "/welcome.js",
+  content: `// 🚀 Welcome to Collaborative Studio!\n\n// The database is unreachable right now, so this room is running\n// in temporary mode — your edits will sync live, but they won't be\n// saved. Check back once the database is back online.\n\nfunction welcomeCollaborator() {\n  console.log("Happy coding!");\n}\n\nwelcomeCollaborator();\n`,
+  isFolder: false,
+  parentId: null,
+});
+const getFallbackRoom = (roomId) => {
+  if (!fallbackRooms[roomId]) {
+    fallbackRooms[roomId] = {
+      files: [fallbackWelcomeFile(roomId)],
+      language: "javascript",
+      messages: [],
+    };
+  }
+  return fallbackRooms[roomId];
+};
+
+// Escape user-controlled file paths before they are used in a RegExp.
+// FIX: a file named e.g. "a.js" made `^/a.js/` match "/aXjs/" too, so a
+// rename/delete/move could touch the wrong files.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const isDbUp = () => require("mongoose").connection.readyState === 1;
 
 // Mount REST auth routes
 app.use("/api/auth", authRoutes);
@@ -110,10 +168,22 @@ io.on("connection", (socket) => {
     roomPresence.users.set(socket.id, clientUser);
 
     try {
-      // Fast-fail if MongoDB is not connected (e.g. missing MONGODB_URI on Render)
+      // FIX: previously this fast-failed with only an error-message and no
+      // file-tree, so the frontend (which only clears its loading screen on
+      // file-tree) sat on "Connecting Workspace" forever. Now a DB outage
+      // serves a temporary in-memory room instead: the editor loads, live
+      // sync still works, and the user is told edits won't be saved.
       const mongoose = require("mongoose");
       if (mongoose.connection.readyState !== 1) {
-        socket.emit("error-message", "Database is not connected. Please check MONGODB_URI on Render.");
+        const fallback = getFallbackRoom(roomId);
+        socket.emit("file-tree", fallback.files);
+        socket.emit("language-change", fallback.language);
+        socket.emit("chat-history", fallback.messages);
+        io.to(roomId).emit("users-update", Array.from(roomPresence.users.values()));
+        socket.emit(
+          "error-message",
+          "Database is not connected — running in temporary mode, edits won't be saved. Please check MONGODB_URI on Render."
+        );
         return;
       }
 
@@ -171,6 +241,7 @@ io.on("connection", (socket) => {
   socket.on("file-create", async ({ name, isFolder, parentId, content }) => {
     const roomId = socket.data.roomId;
     if (!roomId) return;
+    if (!isDbUp()) return socket.emit("error-message", "Database is not connected — cannot create files in temporary mode.");
 
     try {
       let parentPath = "";
@@ -202,6 +273,7 @@ io.on("connection", (socket) => {
   socket.on("file-rename", async ({ fileId, newName }) => {
     const roomId = socket.data.roomId;
     if (!roomId) return;
+    if (!isDbUp()) return socket.emit("error-message", "Database is not connected — cannot rename in temporary mode.");
 
     try {
       const file = await File.findById(fileId);
@@ -219,9 +291,9 @@ io.on("connection", (socket) => {
 
       // If a folder has been renamed, recalculate paths of all children recursively
       if (file.isFolder) {
-        const children = await File.find({ roomId, path: new RegExp(`^${oldPath}/`) });
+        const children = await File.find({ roomId, path: new RegExp(`^${escapeRegExp(oldPath)}/`) });
         for (const child of children) {
-          child.path = child.path.replace(new RegExp(`^${oldPath}`), newPath);
+          child.path = child.path.replace(new RegExp(`^${escapeRegExp(oldPath)}`), newPath);
           await child.save();
         }
       }
@@ -239,6 +311,7 @@ io.on("connection", (socket) => {
   socket.on("file-delete", async ({ fileId }) => {
     const roomId = socket.data.roomId;
     if (!roomId) return;
+    if (!isDbUp()) return socket.emit("error-message", "Database is not connected — cannot delete in temporary mode.");
 
     try {
       const file = await File.findById(fileId);
@@ -248,7 +321,7 @@ io.on("connection", (socket) => {
 
       // Recursive deletions if folder node
       if (file.isFolder) {
-        await File.deleteMany({ roomId, path: new RegExp(`^${oldPath}/`) });
+        await File.deleteMany({ roomId, path: new RegExp(`^${escapeRegExp(oldPath)}/`) });
       }
       await File.findByIdAndDelete(fileId);
 
@@ -276,6 +349,9 @@ io.on("connection", (socket) => {
     // Scoped broadcast: notify other room users
     socket.to(roomId).emit("code-update", { fileId, code });
 
+    // In temporary (no-DB) mode, live sync still works — just skip persisting.
+    if (!isDbUp()) return;
+
     // Asynchronously commit changes to MongoDB
     try {
       await File.findByIdAndUpdate(fileId, { content: code, updatedAt: new Date() });
@@ -296,6 +372,8 @@ io.on("connection", (socket) => {
     if (!roomId) return;
 
     socket.to(roomId).emit("language-change", language);
+
+    if (!isDbUp()) return;
 
     try {
       await Room.findOneAndUpdate(
@@ -322,6 +400,25 @@ io.on("connection", (socket) => {
     }
 
     if (!roomId || !user || !text) return;
+
+    // Temporary (no-DB) mode: keep chat working in memory instead of
+    // buffering a Mongoose save that will never complete.
+    if (!isDbUp()) {
+      const fallback = getFallbackRoom(roomId);
+      const msg = { user, toUser, isPrivate, text, timestamp: new Date() };
+      fallback.messages.push(msg);
+      if (fallback.messages.length > 50) fallback.messages.shift();
+      if (isPrivate && toUser) {
+        const sockets = await io.in(roomId).fetchSockets();
+        sockets.forEach((s) => {
+          const sUsername = s.data.user ? s.data.user.username : "";
+          if (sUsername === toUser || sUsername === user) s.emit("chat-message", msg);
+        });
+      } else {
+        io.to(roomId).emit("chat-message", msg);
+      }
+      return;
+    }
 
     try {
       // 1. Create and save the message in Mongoose model
@@ -368,6 +465,7 @@ io.on("connection", (socket) => {
   socket.on("file-move", async ({ fileId, newParentId }) => {
     const roomId = socket.data.roomId;
     if (!roomId) return;
+    if (!isDbUp()) return socket.emit("error-message", "Database is not connected — cannot move files in temporary mode.");
 
     try {
       const file = await File.findById(fileId);
@@ -393,9 +491,9 @@ io.on("connection", (socket) => {
 
       // Recalculate paths of nested files/folders recursively
       if (file.isFolder) {
-        const children = await File.find({ roomId, path: new RegExp(`^${oldPath}/`) });
+        const children = await File.find({ roomId, path: new RegExp(`^${escapeRegExp(oldPath)}/`) });
         for (const child of children) {
-          child.path = child.path.replace(new RegExp(`^${oldPath}`), newPath);
+          child.path = child.path.replace(new RegExp(`^${escapeRegExp(oldPath)}`), newPath);
           await child.save();
         }
       }

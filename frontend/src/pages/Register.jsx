@@ -92,7 +92,7 @@ export default function Register({ onRegisterSuccess }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
                 placeholder="developer101"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -109,7 +109,7 @@ export default function Register({ onRegisterSuccess }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="developer@studio.com"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -126,7 +126,7 @@ export default function Register({ onRegisterSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -143,7 +143,7 @@ export default function Register({ onRegisterSuccess }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -159,9 +159,9 @@ export default function Register({ onRegisterSuccess }) {
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-550 mt-5">
+        <p className="text-center text-sm text-slate-500 mt-5">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-slate-350 hover:text-slate-200 transition underline">
+          <Link to="/login" className="font-semibold text-slate-300 hover:text-slate-200 transition underline">
             Sign in here
           </Link>
         </p>

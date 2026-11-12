@@ -25,8 +25,11 @@ router.post("/", async (req, res) => {
     command = "node";
   } else if (language === "python" || language === "py") {
     extension = "py";
-    // Try 'python' but fallback to 'py' if needed on Windows
-    command = "python";
+    // FIX: `python` does not exist on most Linux servers (including Render)
+    // — the binary is `python3`. Verified: Run returned
+    // "/bin/sh: 1: python: not found" for every Python file. Use `python3`
+    // on Linux/macOS and `py` on Windows.
+    command = process.platform === "win32" ? "py" : "python3";
   } else {
     return res.status(400).json({ success: false, error: `Language '${language}' is not supported for execution.` });
   }

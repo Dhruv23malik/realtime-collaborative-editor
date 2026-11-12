@@ -185,9 +185,9 @@ export default function ChatPanel({
                 : "Select a collaborator"}
             </p>
             <p className="text-center text-sm text-slate-500 mt-2 max-w-[200px] leading-relaxed">
-              {chatTab === "room" 
-                ? "Share ideas, code snippets, or handoff notes with the entire room." 
-                : "Messages sent here are end-to-end encrypted and visible only to the two of you."}
+              {chatTab === "room"
+                ? "Share ideas, code snippets, or handoff notes with the entire room."
+                : "Messages sent here are visible only to you and the recipient."}
             </p>
           </div>
         )}

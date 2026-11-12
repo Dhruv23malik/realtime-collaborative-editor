@@ -107,7 +107,7 @@ export default function Login({ onLoginSuccess }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -124,7 +124,7 @@ export default function Login({ onLoginSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-650 outline-none transition focus:border-zinc-700"
+                className="w-full rounded border border-[#27272a] bg-black/25 px-3 py-2 pl-9 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-zinc-700"
                 required
               />
             </div>
@@ -142,7 +142,7 @@ export default function Login({ onLoginSuccess }) {
 
         <div className="relative flex py-4 items-center">
           <div className="flex-grow border-t border-[#27272a]"></div>
-          <span className="flex-shrink mx-3 text-xs text-slate-550 uppercase tracking-widest font-bold">or</span>
+          <span className="flex-shrink mx-3 text-xs text-slate-500 uppercase tracking-widest font-bold">or</span>
           <div className="flex-grow border-t border-[#27272a]"></div>
         </div>
 
@@ -156,9 +156,9 @@ export default function Login({ onLoginSuccess }) {
           />
         </div>
 
-        <p className="text-center text-sm text-slate-550">
+        <p className="text-center text-sm text-slate-500">
           Don't have an account?{" "}
-          <Link to="/register" className="font-semibold text-slate-350 hover:text-slate-200 transition underline">
+          <Link to="/register" className="font-semibold text-slate-300 hover:text-slate-200 transition underline">
             Register here
           </Link>
         </p>

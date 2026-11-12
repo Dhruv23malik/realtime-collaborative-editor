@@ -33,7 +33,12 @@ export default function CollaborativeEditor({
   onSelectionChange,
 }) {
   const [code, setCode] = useState(initialCode);
-  const isRemoteUpdate = useRef(false);
+  // FIX: the old isRemoteUpdate flag was set true then immediately false in
+  // the same tick, but setCode/Monaco apply asynchronously — so a remote
+  // update was echoed straight back to the server as a local edit, and the
+  // other clients echoed it again. Track the last remote value instead and
+  // skip emitting when the editor content merely equals what we received.
+  const lastRemoteCodeRef = useRef(initialCode);
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
   const remoteDecorationsRef = useRef({}); // { [socketId]: decorationIds[] }
@@ -42,9 +47,8 @@ export default function CollaborativeEditor({
 
   // Sync with initialCode when the active file shifts or loads
   useEffect(() => {
-    isRemoteUpdate.current = true;
+    lastRemoteCodeRef.current = initialCode;
     setCode(initialCode);
-    isRemoteUpdate.current = false;
   }, [initialCode]);
 
   // Clean up decorations on unmount or file switch
@@ -66,9 +70,8 @@ export default function CollaborativeEditor({
 
     const handleCodeUpdate = ({ fileId: incomingFileId, code: newCode }) => {
       if (incomingFileId === fileId) {
-        isRemoteUpdate.current = true;
+        lastRemoteCodeRef.current = newCode;
         setCode(newCode);
-        isRemoteUpdate.current = false;
       }
     };
 
@@ -182,7 +185,9 @@ export default function CollaborativeEditor({
     if (value === undefined) return;
     setCode(value);
 
-    if (!isRemoteUpdate.current && socket) {
+    // Skip the emit when this change is just the remote value being applied
+    // locally (or the user undoing back to it — the server already has it).
+    if (socket && value !== lastRemoteCodeRef.current) {
       socket.emit("code-change", { roomId, fileId, code: value });
     }
   };
@@ -233,6 +238,7 @@ export default function CollaborativeEditor({
     // Register the apply function so parent can call it
     onApplyCode.current = (newCode) => {
       if (!editorRef.current || !socket) return;
+      lastRemoteCodeRef.current = newCode;
       editorRef.current.setValue(newCode);
       socket.emit("code-change", { roomId, fileId, code: newCode });
     };
