@@ -178,7 +178,7 @@ export default function AIAssistant({ activeFileName, activeCode, activeLanguage
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem("gemini_api_key") || "");
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem("gemini_api_key") || import.meta.env.VITE_GEMINI_API_KEY || "");
   const [showSettings, setShowSettings] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   
