@@ -298,7 +298,7 @@ INSTRUCTIONS:
     abortControllerRef.current = new AbortController();
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=${apiKey}&alt=sse`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?key=${apiKey}&alt=sse`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
